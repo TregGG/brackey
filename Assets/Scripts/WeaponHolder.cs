@@ -33,6 +33,7 @@ public class WeaponHolder : MonoBehaviour
     // --- AMMO TRACKING VARIABLES ---
     private int[] currentAmmoTracker;
     private int[] currentCarriedAmmoTracker;
+    private bool[] unlockedWeapons; // Tracks which guns you actually own
     private bool isReloading = false;
     private Coroutine reloadCoroutine;
 
@@ -71,14 +72,16 @@ public class WeaponHolder : MonoBehaviour
 
         currentAmmoTracker = new int[database.weapons.Count];
         currentCarriedAmmoTracker = new int[database.weapons.Count];
+        unlockedWeapons = new bool[database.weapons.Count]; // All default to false!
 
         for (int i = 0; i < database.weapons.Count; i++)
         {
+            // Give EVERY weapon a full magazine in memory so it's ready when unlocked
             currentAmmoTracker[i] = database.weapons[i].magazineSize;
-
-            // Just gives us our starting ammo when the game begins
-            currentCarriedAmmoTracker[i] = database.weapons[i].startingCarriedAmmo;
         }
+
+        // Explicitly unlock the starting weapon (the Pistol)
+        unlockedWeapons[startingWeaponIndex] = true;
 
         TryEquipWeapon(startingWeaponIndex);
         UpdateAmmoUI();
@@ -88,10 +91,11 @@ public class WeaponHolder : MonoBehaviour
     {
         if (database == null || index < 0 || index >= database.weapons.Count) return;
 
-        // Don't do anything if we are already holding this exact weapon
+        // If we haven't picked up this weapon yet, do nothing
+        if (!unlockedWeapons[index]) return;
+
         if (currentGunInstance != null && currentWeaponIndex == index) return;
 
-        // Cancel any active reloads if we swap weapons!
         if (reloadCoroutine != null) StopCoroutine(reloadCoroutine);
         isReloading = false;
 
@@ -253,6 +257,10 @@ public class WeaponHolder : MonoBehaviour
         currentCarriedAmmoTracker[weaponIndex] += amount;
 
         UpdateAmmoUI();
+        if (currentAmmoTracker[currentWeaponIndex] <= 0)
+        {
+            TryReload();
+        }
     }
 
     private void SpawnBullet(Quaternion rotation)
@@ -286,5 +294,16 @@ public class WeaponHolder : MonoBehaviour
         // Shotgun
         // 2 / 20
         ammoText.text = $"{currentWeapon.weaponID}\n{currentMag} / {reserveAmmo}";
+    }
+
+    // --- WEAPON PROGRESSION LOGIC ---
+    public void UnlockWeapon(int index)
+    {
+        if (index < 0 || index >= unlockedWeapons.Length) return;
+
+        unlockedWeapons[index] = true;
+
+        // Auto-equip the shiny new gun the moment you pick it up!
+        TryEquipWeapon(index);
     }
 }

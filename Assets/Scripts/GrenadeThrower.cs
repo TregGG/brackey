@@ -2,17 +2,24 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 using UnityEngine.Pool;
+using TMPro; 
 
 [RequireComponent(typeof(CinemachineImpulseSource))]
 public class GrenadeThrower : MonoBehaviour
 {
     [Header("Setup")]
     public GameObject grenadePrefab;
-    public Transform throwPoint; // You can use your player's center or the weapon socket
+    public Transform throwPoint;
 
     [Header("Mechanics")]
     public float throwCooldown = 3f;
+    public int startingGrenades = 3;
+    public int maxGrenades = 5; 
 
+    [Header("UI Canvas")]
+    public TextMeshProUGUI grenadeText;
+
+    private int currentGrenades; // Tracks how many are in your pocket
     private PlayerControls controls;
     private Camera mainCam;
     private CinemachineImpulseSource impulseSource;
@@ -25,10 +32,8 @@ public class GrenadeThrower : MonoBehaviour
         impulseSource = GetComponent<CinemachineImpulseSource>();
         controls = new PlayerControls();
 
-        // Listen for the new input action!
         controls.Gameplay.ThrowGrenade.performed += ctx => TryThrowGrenade();
 
-        // Dedicated pool just for grenades
         grenadePool = new ObjectPool<GameObject>(
             createFunc: () => Instantiate(grenadePrefab),
             actionOnGet: (obj) => obj.SetActive(true),
@@ -40,22 +45,31 @@ public class GrenadeThrower : MonoBehaviour
         );
     }
 
+    void Start()
+    {
+        // Give the player their starting amount and update the screen
+        currentGrenades = startingGrenades;
+        UpdateGrenadeUI();
+    }
+
     void OnEnable() { controls.Enable(); }
     void OnDisable() { controls.Disable(); }
 
     private void TryThrowGrenade()
     {
-        // Don't throw if it's on cooldown
-        if (Time.time < nextThrowTime || grenadePrefab == null) return;
+        // Abort if we are out of grenades!
+        if (Time.time < nextThrowTime || grenadePrefab == null || currentGrenades <= 0) return;
 
         nextThrowTime = Time.time + throwCooldown;
 
-        // Calculate the direction towards the mouse cursor
+        // Subtract one grenade and update the UI
+        currentGrenades--;
+        UpdateGrenadeUI();
+
         Vector2 mousePos = controls.Gameplay.Aim.ReadValue<Vector2>();
         Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(mousePos);
         Vector2 throwDirection = ((Vector2)mouseWorldPos - (Vector2)throwPoint.position).normalized;
 
-        // Grab a grenade from the pool and initialize it
         GameObject grenadeGo = grenadePool.Get();
         grenadeGo.transform.position = throwPoint.position;
 
@@ -63,6 +77,24 @@ public class GrenadeThrower : MonoBehaviour
         if (grenadeScript != null)
         {
             grenadeScript.Initialize(throwDirection, grenadePool, impulseSource);
+        }
+    }
+
+    // --- So you can pick up grenade crates later ---
+    public void AddGrenades(int amount)
+    {
+        currentGrenades += amount;
+        if (currentGrenades > maxGrenades) currentGrenades = maxGrenades;
+
+        UpdateGrenadeUI();
+    }
+
+    // --- UI Update Logic ---
+    private void UpdateGrenadeUI()
+    {
+        if (grenadeText != null)
+        {
+            grenadeText.text = $"Grenades: {currentGrenades}";
         }
     }
 }

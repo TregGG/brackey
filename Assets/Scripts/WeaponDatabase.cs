@@ -41,7 +41,6 @@ public struct WeaponStatRow
     [Header("Ammo & Reloading")]
     public bool hasInfiniteAmmo;
     public int magazineSize;
-    public int startingCarriedAmmo;
     public float reloadTime;
     public AudioClip reloadSFX; // The sound of swapping a mag
     public AudioClip emptyClickSFX; // The "click" when you try to shoot with 0 ammo
