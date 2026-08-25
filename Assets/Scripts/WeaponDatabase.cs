@@ -13,12 +13,13 @@ public struct WeaponStatRow
     public float bulletSpeed;
     public float bulletLifeTime;
     public bool isAutomatic;
+    public float impactForce;
 
     [Header("Shotgun Stats")]
     public int projectilesPerShot;
     public float spreadAngle;
 
-    [Header("Screen Shake")]
+    [Header("Screen Shake (Firing)")]
     public bool useScreenShake;
     public float shakeMagnitude;
 
@@ -27,6 +28,11 @@ public struct WeaponStatRow
     public GameObject muzzleFlashVFX;
     public AudioClip impactSFX;
     public GameObject impactVFX;
+
+    [Header("Explosive Stats (RPG)")]
+    public bool isExplosive;
+    public float explosionRadius;
+    public float explosionShakeMagnitude;
 }
 
 [CreateAssetMenu(fileName = "WeaponDB", menuName = "Database/WeaponDatabase")]

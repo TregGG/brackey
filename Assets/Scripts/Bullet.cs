@@ -1,73 +1,93 @@
 using UnityEngine;
 using UnityEngine.Pool;
+using Unity.Cinemachine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Bullet : MonoBehaviour
 {
-    private float speed;
-    private float lifeTime;
+    private WeaponStatRow myStats;
     private float lifeTimer;
-    private Rigidbody2D rb;
-    private ObjectPool<GameObject> myPool;
 
-    // Cached VFX and SFX
-    private AudioClip hitSFX;
-    private GameObject hitVFX;
+    private Rigidbody2D rb;
+    private CinemachineImpulseSource playerImpulseSource;
+    private ObjectPool<GameObject> myPool;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
     }
 
-    // Now accepts the SFX and VFX as parameters
-    public void InitializeBullet(float shotSpeed, float shotLifeTime, ObjectPool<GameObject> pool, AudioClip sfx, GameObject vfx)
+    // Now accepts the Player's Impulse Source!
+    public void InitializeBullet(WeaponStatRow stats, ObjectPool<GameObject> pool, CinemachineImpulseSource impulse)
     {
-        speed = shotSpeed;
-        lifeTime = shotLifeTime;
+        myStats = stats;
         myPool = pool;
-
-        hitSFX = sfx;
-        hitVFX = vfx;
-
+        playerImpulseSource = impulse;
         lifeTimer = 0f;
-        rb.linearVelocity = transform.right * speed;
+
+        rb.linearVelocity = transform.right * myStats.bulletSpeed;
     }
 
     void Update()
     {
         lifeTimer += Time.deltaTime;
-        if (lifeTimer >= lifeTime)
-        {
-            ReturnToPool();
-        }
+        if (lifeTimer >= myStats.bulletLifeTime) ReturnToPool();
     }
 
     private void ReturnToPool()
     {
         rb.linearVelocity = Vector2.zero;
-
         if (myPool != null) myPool.Release(gameObject);
         else Destroy(gameObject);
     }
 
-    void OnTriggerEnter2D(Collider2D hitInfo)
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        // Don't hit the player! (Ensure your player has the tag "Player")
-        if (hitInfo.CompareTag("Player")) return;
+        // Get the exact pixel where the bullet touched the outside of the box
+        Vector2 contactPoint = collision.contacts[0].point;
 
-        // 1. Play the impact sound perfectly in 2D space
-        if (hitSFX != null)
+        if (myStats.impactSFX != null) AudioSource.PlayClipAtPoint(myStats.impactSFX, contactPoint);
+        if (myStats.impactVFX != null) Instantiate(myStats.impactVFX, contactPoint, Quaternion.identity);
+
+        if (!myStats.isExplosive)
         {
-            AudioSource.PlayClipAtPoint(hitSFX, transform.position);
+            Rigidbody2D hitRb = collision.gameObject.GetComponent<Rigidbody2D>();
+            if (hitRb != null)
+            {
+                // Standard bullets push in their flight direction
+                hitRb.AddForce(transform.right * myStats.impactForce, ForceMode2D.Impulse);
+            }
+        }
+        else
+        {
+            // Pass the exact contact point to the explosion
+            Explode(contactPoint);
         }
 
-        // 2. Spawn the visual effect
-        if (hitVFX != null)
-        {
-            Instantiate(hitVFX, transform.position, Quaternion.identity);
-        }
-
-        // 3. Go back to sleep
         ReturnToPool();
+    }
+
+    private void Explode(Vector2 blastCenter)
+    {
+        // Uses the PLAYER'S impulse source, which never gets deactivated!
+        if (myStats.explosionShakeMagnitude > 0 && playerImpulseSource != null)
+        {
+            playerImpulseSource.GenerateImpulseWithForce(myStats.explosionShakeMagnitude);
+        }
+
+        Collider2D[] objectsInBlast = Physics2D.OverlapCircleAll(blastCenter, myStats.explosionRadius);
+
+        foreach (Collider2D obj in objectsInBlast)
+        {
+            if (obj.gameObject == this.gameObject || obj.CompareTag("Player")) continue;
+
+            Rigidbody2D hitRb = obj.GetComponent<Rigidbody2D>();
+            if (hitRb != null)
+            {
+                // Math is now perfectly calculated from the outside edge of the box!
+                Vector2 pushDirection = (obj.transform.position - (Vector3)blastCenter).normalized;
+                hitRb.AddForce(pushDirection * myStats.impactForce, ForceMode2D.Impulse);
+            }
+        }
     }
 }

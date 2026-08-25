@@ -40,8 +40,10 @@ public class WeaponHolder : MonoBehaviour
         };
         controls.Gameplay.Fire.canceled += ctx => isHoldingFire = false;
 
+        // --- INVENTORY INPUTS ---
         controls.Gameplay.Weapon1.performed += ctx => TryEquipWeapon(0);
         controls.Gameplay.Weapon2.performed += ctx => TryEquipWeapon(1);
+        controls.Gameplay.Weapon3.performed += ctx => TryEquipWeapon(2);
     }
 
     void OnEnable() { controls.Enable(); }
@@ -67,14 +69,20 @@ public class WeaponHolder : MonoBehaviour
     // --- POOLING LOGIC ---
     private ObjectPool<GameObject> GetBulletPool(GameObject prefab)
     {
-        // If a pool for this bullet doesn't exist yet, build it!
         if (!bulletPools.ContainsKey(prefab))
         {
             bulletPools[prefab] = new ObjectPool<GameObject>(
                 createFunc: () => Instantiate(prefab),
                 actionOnGet: (obj) => obj.SetActive(true),
                 actionOnRelease: (obj) => obj.SetActive(false),
-                actionOnDestroy: (obj) => Destroy(obj),
+
+              
+                actionOnDestroy: (obj) =>
+                {
+                    // Only run this if the game is actually running to prevent Editor errors on exit!
+                    if (Application.isPlaying) Destroy(obj);
+                },
+
                 collectionCheck: false,
                 defaultCapacity: 50,
                 maxSize: 500
@@ -152,8 +160,8 @@ public class WeaponHolder : MonoBehaviour
         Bullet bulletScript = bulletGo.GetComponent<Bullet>();
         if (bulletScript != null)
         {
-            // Pass the new Audio and Visual data into the bullet!
-            bulletScript.InitializeBullet(currentWeapon.bulletSpeed, currentWeapon.bulletLifeTime, pool, currentWeapon.impactSFX, currentWeapon.impactVFX);
+            // Pass the 'impulseSource' variable we cached in Awake!
+            bulletScript.InitializeBullet(currentWeapon, pool, impulseSource);
         }
     }
 }
