@@ -181,6 +181,26 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""ThrowGrenade"",
+                    ""type"": ""Button"",
+                    ""id"": ""caa27f32-4df8-4931-976e-9aa3689cebb8"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""Reload"",
+                    ""type"": ""Button"",
+                    ""id"": ""ada3f0f8-57c2-48e9-ac3c-407859da2222"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -337,6 +357,28 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""Weapon4"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""018e3c93-a981-4e19-b438-2859e598c480"",
+                    ""path"": ""<Keyboard>/g"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ThrowGrenade"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dfc87623-a2aa-4957-ab15-18f4a5b7febb"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Reload"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -354,6 +396,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Gameplay_Weapon2 = m_Gameplay.FindAction("Weapon2", throwIfNotFound: true);
         m_Gameplay_Weapon3 = m_Gameplay.FindAction("Weapon3", throwIfNotFound: true);
         m_Gameplay_Weapon4 = m_Gameplay.FindAction("Weapon4", throwIfNotFound: true);
+        m_Gameplay_ThrowGrenade = m_Gameplay.FindAction("ThrowGrenade", throwIfNotFound: true);
+        m_Gameplay_Reload = m_Gameplay.FindAction("Reload", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -443,6 +487,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Weapon2;
     private readonly InputAction m_Gameplay_Weapon3;
     private readonly InputAction m_Gameplay_Weapon4;
+    private readonly InputAction m_Gameplay_ThrowGrenade;
+    private readonly InputAction m_Gameplay_Reload;
     /// <summary>
     /// Provides access to input actions defined in input action map "Gameplay".
     /// </summary>
@@ -490,6 +536,14 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Gameplay/Weapon4".
         /// </summary>
         public InputAction @Weapon4 => m_Wrapper.m_Gameplay_Weapon4;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/ThrowGrenade".
+        /// </summary>
+        public InputAction @ThrowGrenade => m_Wrapper.m_Gameplay_ThrowGrenade;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/Reload".
+        /// </summary>
+        public InputAction @Reload => m_Wrapper.m_Gameplay_Reload;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -543,6 +597,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Weapon4.started += instance.OnWeapon4;
             @Weapon4.performed += instance.OnWeapon4;
             @Weapon4.canceled += instance.OnWeapon4;
+            @ThrowGrenade.started += instance.OnThrowGrenade;
+            @ThrowGrenade.performed += instance.OnThrowGrenade;
+            @ThrowGrenade.canceled += instance.OnThrowGrenade;
+            @Reload.started += instance.OnReload;
+            @Reload.performed += instance.OnReload;
+            @Reload.canceled += instance.OnReload;
         }
 
         /// <summary>
@@ -581,6 +641,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Weapon4.started -= instance.OnWeapon4;
             @Weapon4.performed -= instance.OnWeapon4;
             @Weapon4.canceled -= instance.OnWeapon4;
+            @ThrowGrenade.started -= instance.OnThrowGrenade;
+            @ThrowGrenade.performed -= instance.OnThrowGrenade;
+            @ThrowGrenade.canceled -= instance.OnThrowGrenade;
+            @Reload.started -= instance.OnReload;
+            @Reload.performed -= instance.OnReload;
+            @Reload.canceled -= instance.OnReload;
         }
 
         /// <summary>
@@ -684,5 +750,19 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnWeapon4(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ThrowGrenade" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnThrowGrenade(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Reload" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnReload(InputAction.CallbackContext context);
     }
 }

@@ -106,6 +106,9 @@ public class Bullet : MonoBehaviour
 
         if (!myStats.isExplosive)
         {
+            Health hitHealth = collision.gameObject.GetComponent<Health>();
+            if (hitHealth != null) hitHealth.TakeDamage(myStats.damage);
+
             Rigidbody2D hitRb = collision.gameObject.GetComponent<Rigidbody2D>();
             if (hitRb != null) hitRb.AddForce(transform.right * myStats.impactForce, ForceMode2D.Impulse);
         }
@@ -131,10 +134,13 @@ public class Bullet : MonoBehaviour
         {
             if (obj.gameObject == this.gameObject || obj.CompareTag("Player")) continue;
 
+            // Check for health in the blast radius
+            Health hitHealth = obj.GetComponent<Health>();
+            if (hitHealth != null) hitHealth.TakeDamage(myStats.damage);
+
             Rigidbody2D hitRb = obj.GetComponent<Rigidbody2D>();
             if (hitRb != null)
             {
-                // Math is now perfectly calculated from the outside edge of the box!
                 Vector2 pushDirection = (obj.transform.position - (Vector3)blastCenter).normalized;
                 hitRb.AddForce(pushDirection * myStats.impactForce, ForceMode2D.Impulse);
             }

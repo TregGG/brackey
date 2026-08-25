@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 1920915583342462187}
   - component: {fileID: 7448386254480878241}
   - component: {fileID: 8192535491160091219}
+  - component: {fileID: 3315120473577595755}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -425,6 +426,21 @@ MonoBehaviour:
     DissipationDistance: 100
     PropagationSpeed: 343
   DefaultVelocity: {x: 1, y: -1, z: 1}
+--- !u!114 &3315120473577595755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3561520344644636632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00a25e958b6765a459188ada7292293f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  grenadePrefab: {fileID: 190193319848005111, guid: 68f1c33ceb32f3b4c849bef9db6be702, type: 3}
+  throwPoint: {fileID: 1161691639279016067}
+  throwCooldown: 3
 --- !u!1 &8373785058829220306
 GameObject:
   m_ObjectHideFlags: 0

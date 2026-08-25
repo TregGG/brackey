@@ -9,6 +9,7 @@ public struct WeaponStatRow
     public GameObject bulletPrefab;
 
     [Header("Core Stats")]
+    public float damage;
     public float fireRate;
     public float bulletSpeed;
     public float bulletLifeTime;
@@ -37,6 +38,13 @@ public struct WeaponStatRow
     [Header("Laser Stats")]
     public bool isLaser;
     public float laserRange;
+
+    [Header("Ammo & Reloading")]
+    public bool hasInfiniteAmmo;
+    public int magazineSize;
+    public float reloadTime;
+    public AudioClip reloadSFX; // The sound of swapping a mag
+    public AudioClip emptyClickSFX; // The "click" when you try to shoot with 0 ammo
 }
 
 [CreateAssetMenu(fileName = "WeaponDB", menuName = "Database/WeaponDatabase")]
