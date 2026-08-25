@@ -33,6 +33,10 @@ public struct WeaponStatRow
     public bool isExplosive;
     public float explosionRadius;
     public float explosionShakeMagnitude;
+
+    [Header("Laser Stats")]
+    public bool isLaser;
+    public float laserRange;
 }
 
 [CreateAssetMenu(fileName = "WeaponDB", menuName = "Database/WeaponDatabase")]
