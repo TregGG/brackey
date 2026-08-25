@@ -254,6 +254,15 @@ public class WeaponHolder : MonoBehaviour
         if (unlockedWeapons.ContainsKey(weaponID))
         {
             unlockedWeapons[weaponID] = true;
+
+            // Fill the magazine completely when picked up
+            WeaponStatRow weaponStats = database.weapons.Find(w => w.weaponID == weaponID);
+            if (!string.IsNullOrEmpty(weaponStats.weaponID))
+            {
+                currentAmmoTracker[weaponID] = weaponStats.magazineSize;
+            }
+
+            // Equip the weapon (which also updates the UI so you instantly see the full mag)
             TryEquipWeapon(weaponID);
         }
     }
