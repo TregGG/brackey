@@ -10,10 +10,9 @@ using TMPro;
 public class WeaponHolder : MonoBehaviour
 {
     public WeaponDatabase database;
-    public int startingWeaponIndex = 0;
+    public string startingWeaponID = "Pistol";
     public Transform weaponSocket;
 
-    private int currentWeaponIndex; // Tracks which slot we are currently holding
     private WeaponStatRow currentWeapon;
     private GameObject currentGunInstance;
     private Transform currentFirePoint;
@@ -27,13 +26,13 @@ public class WeaponHolder : MonoBehaviour
     private CinemachineImpulseSource impulseSource;
     private AudioSource audioSource;
 
-    // The Pool Dictionary: Maps a bullet prefab to its specific ObjectPool
     private Dictionary<GameObject, ObjectPool<GameObject>> bulletPools = new Dictionary<GameObject, ObjectPool<GameObject>>();
 
-    // --- AMMO TRACKING VARIABLES ---
-    private int[] currentAmmoTracker;
-    private int[] currentCarriedAmmoTracker;
-    private bool[] unlockedWeapons; // Tracks which guns you actually own
+    // --- DICTIONARY TRACKERS ---
+    private Dictionary<string, int> currentAmmoTracker = new Dictionary<string, int>();
+    private Dictionary<string, int> currentCarriedAmmoTracker = new Dictionary<string, int>();
+    private Dictionary<string, bool> unlockedWeapons = new Dictionary<string, bool>();
+
     private bool isReloading = false;
     private Coroutine reloadCoroutine;
 
@@ -54,12 +53,11 @@ public class WeaponHolder : MonoBehaviour
         controls.Gameplay.Fire.canceled += ctx => isHoldingFire = false;
 
         // --- INVENTORY INPUTS ---
-        controls.Gameplay.Weapon1.performed += ctx => TryEquipWeapon(0);
-        controls.Gameplay.Weapon2.performed += ctx => TryEquipWeapon(1);
-        controls.Gameplay.Weapon3.performed += ctx => TryEquipWeapon(2);
-        controls.Gameplay.Weapon4.performed += ctx => TryEquipWeapon(3);
+        controls.Gameplay.Weapon1.performed += ctx => TryEquipByIndex(0);
+        controls.Gameplay.Weapon2.performed += ctx => TryEquipByIndex(1);
+        controls.Gameplay.Weapon3.performed += ctx => TryEquipByIndex(2);
+        controls.Gameplay.Weapon4.performed += ctx => TryEquipByIndex(3);
 
-        // Reload Input
         controls.Gameplay.Reload.performed += ctx => TryReload();
     }
 
@@ -70,46 +68,56 @@ public class WeaponHolder : MonoBehaviour
     {
         Cursor.visible = false;
 
-        currentAmmoTracker = new int[database.weapons.Count];
-        currentCarriedAmmoTracker = new int[database.weapons.Count];
-        unlockedWeapons = new bool[database.weapons.Count]; // All default to false!
-
-        for (int i = 0; i < database.weapons.Count; i++)
+        // Initialize our hash maps dynamically based on the database
+        foreach (var weapon in database.weapons)
         {
-            // Give EVERY weapon a full magazine in memory so it's ready when unlocked
-            currentAmmoTracker[i] = database.weapons[i].magazineSize;
+            currentAmmoTracker[weapon.weaponID] = weapon.hasInfiniteAmmo ? weapon.magazineSize : 0;
+            currentCarriedAmmoTracker[weapon.weaponID] = 0;
+            unlockedWeapons[weapon.weaponID] = false;
         }
 
-        // Explicitly unlock the starting weapon (the Pistol)
-        unlockedWeapons[startingWeaponIndex] = true;
-
-        TryEquipWeapon(startingWeaponIndex);
-        UpdateAmmoUI();
+        // Unlock and equip the starting weapon
+        unlockedWeapons[startingWeaponID] = true;
+        TryEquipWeapon(startingWeaponID);
     }
 
-    private void TryEquipWeapon(int index)
+    // Helper method so your 1-4 keys still work based on the database list order
+    private void TryEquipByIndex(int index)
     {
-        if (database == null || index < 0 || index >= database.weapons.Count) return;
+        if (database != null && index >= 0 && index < database.weapons.Count)
+        {
+            TryEquipWeapon(database.weapons[index].weaponID);
+        }
+    }
+
+    public void TryEquipWeapon(string weaponID)
+    {
+        if (database == null) return;
 
         // If we haven't picked up this weapon yet, do nothing
-        if (!unlockedWeapons[index]) return;
+        if (!unlockedWeapons.ContainsKey(weaponID) || !unlockedWeapons[weaponID]) return;
 
-        if (currentGunInstance != null && currentWeaponIndex == index) return;
+        // If we are already holding it, do nothing
+        if (currentGunInstance != null && currentWeapon.weaponID == weaponID) return;
+
+        // Search the database for the weapon
+        WeaponStatRow newWeapon = database.weapons.Find(w => w.weaponID == weaponID);
+
+        // Since WeaponStatRow is a struct, we check if the string is empty to see if it failed to find it
+        if (string.IsNullOrEmpty(newWeapon.weaponID)) return;
 
         if (reloadCoroutine != null) StopCoroutine(reloadCoroutine);
         isReloading = false;
 
         if (currentGunInstance != null) Destroy(currentGunInstance);
 
-        currentWeaponIndex = index;
-        currentWeapon = database.weapons[index];
+        currentWeapon = newWeapon;
         currentGunInstance = Instantiate(currentWeapon.weaponPrefab, weaponSocket);
         currentFirePoint = currentGunInstance.transform.GetChild(0);
 
         UpdateAmmoUI();
     }
 
-    // --- POOLING LOGIC ---
     private ObjectPool<GameObject> GetBulletPool(GameObject prefab)
     {
         if (!bulletPools.ContainsKey(prefab))
@@ -118,14 +126,7 @@ public class WeaponHolder : MonoBehaviour
                 createFunc: () => Instantiate(prefab),
                 actionOnGet: (obj) => obj.SetActive(true),
                 actionOnRelease: (obj) => obj.SetActive(false),
-
-              
-                actionOnDestroy: (obj) =>
-                {
-                    // Only run this if the game is actually running to prevent Editor errors on exit!
-                    if (Application.isPlaying) Destroy(obj);
-                },
-
+                actionOnDestroy: (obj) => { if (Application.isPlaying) Destroy(obj); },
                 collectionCheck: false,
                 defaultCapacity: 50,
                 maxSize: 500
@@ -136,65 +137,56 @@ public class WeaponHolder : MonoBehaviour
 
     void Update()
     {
-        // Block shooting completely if we are in the middle of a reload animation
-        if (isReloading) return;
+        // 1. Check if the player is trying to shoot this exact frame
+        bool wantsToShoot = string.IsNullOrEmpty(currentWeapon.weaponID) ? false :
+                            (currentWeapon.isAutomatic ? isHoldingFire : firePressedThisFrame);
 
-        bool wantsToShoot = currentWeapon.isAutomatic ? isHoldingFire : firePressedThisFrame;
+        // 2. IMMEDIATELY consume/reset the single-fire flag so it never buffers!
+        firePressedThisFrame = false;
 
+        // 3. Now, if we are reloading, or holding no weapon, just stop here.
+        if (isReloading || string.IsNullOrEmpty(currentWeapon.weaponID)) return;
+
+        // 4. If we made it this far, fire the gun!
         if (wantsToShoot && Time.time >= nextFireTime)
         {
             Shoot();
             nextFireTime = Time.time + currentWeapon.fireRate;
         }
-
-        firePressedThisFrame = false;
     }
+
     private void Shoot()
     {
-        // --- AMMO CHECK LOGIC ---
-       
-            // If the mag is already empty (e.g., if they swapped weapons to cancel a previous reload)
-            if (currentAmmoTracker[currentWeaponIndex] <= 0)
-            {
-                // Instantly force a reload instead of just clicking empty
-                TryReload();
-                return;
-            }
+        if (currentAmmoTracker[currentWeapon.weaponID] <= 0)
+        {
+            TryReload();
+            return;
+        }
 
-            // Subtract a bullet for firing
-            currentAmmoTracker[currentWeaponIndex]--;
-            UpdateAmmoUI();
+        currentAmmoTracker[currentWeapon.weaponID]--;
+        UpdateAmmoUI();
 
-            // --- AUTO-RELOAD TRIGGER ---
-            // If that was the absolute last bullet in the mag, start the reload immediately!
-            if (currentAmmoTracker[currentWeaponIndex] <= 0)
-            {
-                TryReload();
-            }
-        
+        if (currentAmmoTracker[currentWeapon.weaponID] <= 0)
+        {
+            TryReload();
+        }
 
         if (currentWeapon.useScreenShake && currentWeapon.shakeMagnitude > 0)
         {
             impulseSource.GenerateImpulseWithForce(currentWeapon.shakeMagnitude);
         }
 
-        // --- AUDIO & MUZZLE FLASH ---
-
-        // Play the gunshot sound (PlayOneShot allows multiple rapid shots to overlap cleanly)
         if (currentWeapon.fireSFX != null)
         {
-            // Optional: Randomize the pitch slightly so machine guns don't sound like robots!
             audioSource.pitch = Random.Range(0.9f, 1.1f);
             audioSource.PlayOneShot(currentWeapon.fireSFX);
         }
 
-        // Spawn the Muzzle Flash, parented to the FirePoint so it follows the gun if the player moves
         if (currentWeapon.muzzleFlashVFX != null)
         {
             Instantiate(currentWeapon.muzzleFlashVFX, currentFirePoint.position, currentFirePoint.rotation, currentFirePoint);
         }
 
-        // --- SPREAD MATH ---
         int projectiles = currentWeapon.projectilesPerShot;
 
         if (projectiles <= 1)
@@ -216,13 +208,10 @@ public class WeaponHolder : MonoBehaviour
         }
     }
 
-    // --- RELOAD LOGIC ---
     private void TryReload()
     {
-        // Don't reload if already reloading, if mag is full, or if we have NO reserve ammo left!
-        if (isReloading || currentAmmoTracker[currentWeaponIndex] == currentWeapon.magazineSize) return;
-
-        if (!currentWeapon.hasInfiniteAmmo && currentCarriedAmmoTracker[currentWeaponIndex] <= 0) return;
+        if (isReloading || currentAmmoTracker[currentWeapon.weaponID] == currentWeapon.magazineSize) return;
+        if (!currentWeapon.hasInfiniteAmmo && currentCarriedAmmoTracker[currentWeapon.weaponID] <= 0) return;
 
         if (reloadCoroutine != null) StopCoroutine(reloadCoroutine);
         reloadCoroutine = StartCoroutine(ReloadRoutine());
@@ -235,31 +224,46 @@ public class WeaponHolder : MonoBehaviour
 
         yield return new WaitForSeconds(currentWeapon.reloadTime);
 
-        // --- Calculate exactly how much ammo we need vs how much we have ---
-        int amountNeeded = currentWeapon.magazineSize - currentAmmoTracker[currentWeaponIndex];
+        int amountNeeded = currentWeapon.magazineSize - currentAmmoTracker[currentWeapon.weaponID];
+        int amountToReload = currentWeapon.hasInfiniteAmmo ? amountNeeded : Mathf.Min(amountNeeded, currentCarriedAmmoTracker[currentWeapon.weaponID]);
 
-        // If infinite, give all they need. If not, give the smaller number between what they need and what they have.
-        int amountToReload = currentWeapon.hasInfiniteAmmo ? amountNeeded : Mathf.Min(amountNeeded, currentCarriedAmmoTracker[currentWeaponIndex]);
-
-        // Add to the magazine and subtract from the pockets
-        currentAmmoTracker[currentWeaponIndex] += amountToReload;
-        if (!currentWeapon.hasInfiniteAmmo) currentCarriedAmmoTracker[currentWeaponIndex] -= amountToReload;
+        currentAmmoTracker[currentWeapon.weaponID] += amountToReload;
+        if (!currentWeapon.hasInfiniteAmmo) currentCarriedAmmoTracker[currentWeapon.weaponID] -= amountToReload;
 
         UpdateAmmoUI();
         isReloading = false;
     }
 
-    // --- PICKUP LOGIC ---
-    public void AddAmmo(int weaponIndex, int amount)
+    public void AddAmmo(string weaponID, int amount)
     {
-        if (weaponIndex < 0 || weaponIndex >= currentCarriedAmmoTracker.Length) return;
-
-        currentCarriedAmmoTracker[weaponIndex] += amount;
-
-        UpdateAmmoUI();
-        if (currentAmmoTracker[currentWeaponIndex] <= 0)
+        if (currentCarriedAmmoTracker.ContainsKey(weaponID))
         {
-            TryReload();
+            currentCarriedAmmoTracker[weaponID] += amount;
+            UpdateAmmoUI();
+
+            // If we just picked up ammo for the gun we are holding, and the mag is empty, auto-reload!
+            if (currentWeapon.weaponID == weaponID && currentAmmoTracker[weaponID] <= 0)
+            {
+                TryReload();
+            }
+        }
+    }
+
+    public void UnlockWeapon(string weaponID)
+    {
+        if (unlockedWeapons.ContainsKey(weaponID))
+        {
+            unlockedWeapons[weaponID] = true;
+
+            // Fill the magazine completely when picked up
+            WeaponStatRow weaponStats = database.weapons.Find(w => w.weaponID == weaponID);
+            if (!string.IsNullOrEmpty(weaponStats.weaponID))
+            {
+                currentAmmoTracker[weaponID] = weaponStats.magazineSize;
+            }
+
+            // Equip the weapon (which also updates the UI so you instantly see the full mag)
+            TryEquipWeapon(weaponID);
         }
     }
 
@@ -274,36 +278,17 @@ public class WeaponHolder : MonoBehaviour
         Bullet bulletScript = bulletGo.GetComponent<Bullet>();
         if (bulletScript != null)
         {
-            // Pass the 'impulseSource' variable we cached in Awake!
             bulletScript.InitializeBullet(currentWeapon, pool, impulseSource);
         }
     }
 
-    // --- UI LOGIC ---
     private void UpdateAmmoUI()
     {
-        // Safety check in case the UI isn't hooked up yet
-        if (ammoText == null) return;
+        if (ammoText == null || string.IsNullOrEmpty(currentWeapon.weaponID)) return;
 
-        string currentMag = currentAmmoTracker[currentWeaponIndex].ToString();
+        string currentMag = currentAmmoTracker[currentWeapon.weaponID].ToString();
+        string reserveAmmo = currentWeapon.hasInfiniteAmmo ? "∞" : currentCarriedAmmoTracker[currentWeapon.weaponID].ToString();
 
-        // If it's infinite, show the infinity symbol (∞). Otherwise, show the reserve number!
-        string reserveAmmo = currentWeapon.hasInfiniteAmmo ? "∞" : currentCarriedAmmoTracker[currentWeaponIndex].ToString();
-
-        // This formats it to look like:
-        // Shotgun
-        // 2 / 20
         ammoText.text = $"{currentWeapon.weaponID}\n{currentMag} / {reserveAmmo}";
-    }
-
-    // --- WEAPON PROGRESSION LOGIC ---
-    public void UnlockWeapon(int index)
-    {
-        if (index < 0 || index >= unlockedWeapons.Length) return;
-
-        unlockedWeapons[index] = true;
-
-        // Auto-equip the shiny new gun the moment you pick it up!
-        TryEquipWeapon(index);
     }
 }
