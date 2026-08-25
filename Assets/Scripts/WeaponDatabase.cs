@@ -9,6 +9,7 @@ public struct WeaponStatRow
     public GameObject bulletPrefab;
 
     [Header("Core Stats")]
+    public float damage;
     public float fireRate;
     public float bulletSpeed;
     public float bulletLifeTime;

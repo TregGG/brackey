@@ -10,6 +10,7 @@ public class HandGrenade : MonoBehaviour
     public float fuseTime = 2f;
     public float explosionRadius = 3f;
     public float explosionForce = 20f;
+    public float damage = 75f;
     public float shakeMagnitude = 1f;
 
     [Header("Audio & Visuals")]
@@ -33,46 +34,42 @@ public class HandGrenade : MonoBehaviour
         playerImpulseSource = impulse;
         timer = 0f;
 
-        // Launch the grenade in the direction of the mouse
         rb.linearVelocity = direction * throwSpeed;
     }
 
     void Update()
     {
         timer += Time.deltaTime;
-        if (timer >= fuseTime)
-        {
-            Explode();
-        }
+        if (timer >= fuseTime) Explode();
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // Play a metallic clink sound every time it hits a wall or obstacle
         if (bounceSFX != null) AudioSource.PlayClipAtPoint(bounceSFX, transform.position);
     }
 
     private void Explode()
     {
-        // 1. Audio, Visuals, and Screen Shake
         if (explosionSFX != null) AudioSource.PlayClipAtPoint(explosionSFX, transform.position);
         if (explosionVFX != null) Instantiate(explosionVFX, transform.position, Quaternion.identity);
         if (shakeMagnitude > 0 && playerImpulseSource != null) playerImpulseSource.GenerateImpulseWithForce(shakeMagnitude);
 
-        // 2. Physics Knockback
         Collider2D[] objectsInBlast = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
         foreach (Collider2D obj in objectsInBlast)
         {
             if (obj.gameObject == this.gameObject || obj.CompareTag("Player")) continue;
 
+            Health hitHealth = obj.GetComponent<Health>();
+            if (hitHealth != null) hitHealth.TakeDamage(damage); // Uses local damage
+
             Rigidbody2D hitRb = obj.GetComponent<Rigidbody2D>();
             if (hitRb != null)
             {
+                //  Uses transform.position and local explosionForce
                 Vector2 pushDirection = (obj.transform.position - transform.position).normalized;
                 hitRb.AddForce(pushDirection * explosionForce, ForceMode2D.Impulse);
             }
         }
-
         ReturnToPool();
     }
 
