@@ -44,6 +44,7 @@ public class WeaponHolder : MonoBehaviour
         controls.Gameplay.Weapon1.performed += ctx => TryEquipWeapon(0);
         controls.Gameplay.Weapon2.performed += ctx => TryEquipWeapon(1);
         controls.Gameplay.Weapon3.performed += ctx => TryEquipWeapon(2);
+        controls.Gameplay.Weapon4.performed += ctx => TryEquipWeapon(3);
     }
 
     void OnEnable() { controls.Enable(); }

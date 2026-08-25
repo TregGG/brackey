@@ -32,6 +32,8 @@ MonoBehaviour:
     isExplosive: 0
     explosionRadius: 0
     explosionShakeMagnitude: 0
+    isLaser: 0
+    laserRange: 0
   - weaponID: 2
     weaponPrefab: {fileID: 5335074977614675557, guid: 96443217ed4859142be45c0ad3ab28f6, type: 3}
     bulletPrefab: {fileID: 5565608914010123635, guid: d98ee849f3b1dc54da2ae1c2869e9de7, type: 3}
@@ -51,6 +53,8 @@ MonoBehaviour:
     isExplosive: 0
     explosionRadius: 0
     explosionShakeMagnitude: 0
+    isLaser: 0
+    laserRange: 0
   - weaponID: 3
     weaponPrefab: {fileID: 5335074977614675557, guid: 307b81ee678644a4188441b36af272de, type: 3}
     bulletPrefab: {fileID: 5565608914010123635, guid: 095da8d7862b9d34586624ea2d30e1d6, type: 3}
@@ -70,3 +74,26 @@ MonoBehaviour:
     isExplosive: 1
     explosionRadius: 10
     explosionShakeMagnitude: 1.5
+    isLaser: 0
+    laserRange: 0
+  - weaponID: 4
+    weaponPrefab: {fileID: 5335074977614675557, guid: 6591bc0e3af2b5d46842026055368cb1, type: 3}
+    bulletPrefab: {fileID: 8492104172327841520, guid: 8c51c46e903d92e489745a8fa3e0b21a, type: 3}
+    fireRate: 0.05
+    bulletSpeed: 100
+    bulletLifeTime: 0.04
+    isAutomatic: 1
+    impactForce: 0.2
+    projectilesPerShot: 1
+    spreadAngle: 0
+    useScreenShake: 0
+    shakeMagnitude: 0
+    fireSFX: {fileID: 8300000, guid: 21b2fe6f847b67148933ad36a9edf9e3, type: 3}
+    muzzleFlashVFX: {fileID: 0}
+    impactSFX: {fileID: 0}
+    impactVFX: {fileID: 0}
+    isExplosive: 0
+    explosionRadius: 10
+    explosionShakeMagnitude: 1.5
+    isLaser: 1
+    laserRange: 15

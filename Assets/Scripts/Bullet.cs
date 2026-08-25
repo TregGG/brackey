@@ -17,7 +17,6 @@ public class Bullet : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
-    // Now accepts the Player's Impulse Source!
     public void InitializeBullet(WeaponStatRow stats, ObjectPool<GameObject> pool, CinemachineImpulseSource impulse)
     {
         myStats = stats;
@@ -25,7 +24,16 @@ public class Bullet : MonoBehaviour
         playerImpulseSource = impulse;
         lifeTimer = 0f;
 
-        rb.linearVelocity = transform.right * myStats.bulletSpeed;
+        if (myStats.isLaser)
+        {
+            rb.linearVelocity = Vector2.zero;
+            FireLaser();
+        }
+        else
+        {
+            // Standard physical bullet
+            rb.linearVelocity = transform.right * myStats.bulletSpeed;
+        }
     }
 
     void Update()
@@ -41,9 +49,56 @@ public class Bullet : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    private void FireLaser()
+    {
+        // Start by assuming the laser will go the maximum distance
+        float actualRange = myStats.laserRange;
+
+        // 1. Fire the mathematical raycast first
+        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, transform.right, actualRange);
+
+        // 2. Sort the array so we process hits from closest to furthest
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            // Ignore the player and triggers
+            if (hit.collider.CompareTag("Player") || hit.collider.isTrigger) continue;
+
+            // Play effects for the object we just hit
+            if (myStats.impactSFX != null) AudioSource.PlayClipAtPoint(myStats.impactSFX, hit.point);
+            if (myStats.impactVFX != null) Instantiate(myStats.impactVFX, hit.point, Quaternion.identity);
+
+            // Push the object
+            Rigidbody2D hitRb = hit.collider.GetComponent<Rigidbody2D>();
+            if (hitRb != null)
+            {
+                hitRb.AddForce(transform.right * myStats.impactForce, ForceMode2D.Impulse);
+            }
+
+            // --- THE PENETRATION LOGIC ---
+            // If the object is NOT tagged "Enemy", it acts as a solid wall/obstacle.
+            if (!hit.collider.CompareTag("Enemy"))
+            {
+                actualRange = hit.distance; // Shorten the visual line to this exact impact point
+                break; // Break the loop so nothing behind this obstacle gets hit
+            }
+        }
+
+        // 3. Draw the visual beam using the newly calculated range
+        LineRenderer lr = GetComponent<LineRenderer>();
+        if (lr != null)
+        {
+            lr.SetPosition(0, transform.position); // Start at the gun barrel
+            lr.SetPosition(1, transform.position + (transform.right * actualRange)); // End at the obstacle
+        }
+    }
+
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // Get the exact pixel where the bullet touched the outside of the box
+        // PREVENT BUG: If this is a laser, ignore physical collisions entirely!
+        if (myStats.isLaser) return;
+
         Vector2 contactPoint = collision.contacts[0].point;
 
         if (myStats.impactSFX != null) AudioSource.PlayClipAtPoint(myStats.impactSFX, contactPoint);
@@ -52,15 +107,10 @@ public class Bullet : MonoBehaviour
         if (!myStats.isExplosive)
         {
             Rigidbody2D hitRb = collision.gameObject.GetComponent<Rigidbody2D>();
-            if (hitRb != null)
-            {
-                // Standard bullets push in their flight direction
-                hitRb.AddForce(transform.right * myStats.impactForce, ForceMode2D.Impulse);
-            }
+            if (hitRb != null) hitRb.AddForce(transform.right * myStats.impactForce, ForceMode2D.Impulse);
         }
         else
         {
-            // Pass the exact contact point to the explosion
             Explode(contactPoint);
         }
 
