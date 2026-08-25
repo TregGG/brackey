@@ -34,6 +34,12 @@ MonoBehaviour:
     explosionShakeMagnitude: 0
     isLaser: 0
     laserRange: 0
+    hasInfiniteAmmo: 1
+    magazineSize: 15
+    startingCarriedAmmo: 0
+    reloadTime: 2
+    reloadSFX: {fileID: 0}
+    emptyClickSFX: {fileID: 0}
   - weaponID: 2
     weaponPrefab: {fileID: 5335074977614675557, guid: 96443217ed4859142be45c0ad3ab28f6, type: 3}
     bulletPrefab: {fileID: 5565608914010123635, guid: d98ee849f3b1dc54da2ae1c2869e9de7, type: 3}
@@ -55,6 +61,12 @@ MonoBehaviour:
     explosionShakeMagnitude: 0
     isLaser: 0
     laserRange: 0
+    hasInfiniteAmmo: 0
+    magazineSize: 7
+    startingCarriedAmmo: 14
+    reloadTime: 3
+    reloadSFX: {fileID: 0}
+    emptyClickSFX: {fileID: 0}
   - weaponID: 3
     weaponPrefab: {fileID: 5335074977614675557, guid: 307b81ee678644a4188441b36af272de, type: 3}
     bulletPrefab: {fileID: 5565608914010123635, guid: 095da8d7862b9d34586624ea2d30e1d6, type: 3}
@@ -76,6 +88,12 @@ MonoBehaviour:
     explosionShakeMagnitude: 1.5
     isLaser: 0
     laserRange: 0
+    hasInfiniteAmmo: 0
+    magazineSize: 1
+    startingCarriedAmmo: 0
+    reloadTime: 4
+    reloadSFX: {fileID: 0}
+    emptyClickSFX: {fileID: 0}
   - weaponID: 4
     weaponPrefab: {fileID: 5335074977614675557, guid: 6591bc0e3af2b5d46842026055368cb1, type: 3}
     bulletPrefab: {fileID: 8492104172327841520, guid: 8c51c46e903d92e489745a8fa3e0b21a, type: 3}
@@ -97,3 +115,9 @@ MonoBehaviour:
     explosionShakeMagnitude: 1.5
     isLaser: 1
     laserRange: 15
+    hasInfiniteAmmo: 0
+    magazineSize: 50
+    startingCarriedAmmo: 0
+    reloadTime: 5
+    reloadSFX: {fileID: 0}
+    emptyClickSFX: {fileID: 0}
