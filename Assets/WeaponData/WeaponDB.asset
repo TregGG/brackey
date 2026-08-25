@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: WeaponDB
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDatabase
   weapons:
-  - weaponID: 1
+  - weaponID: Pistol
     weaponPrefab: {fileID: 5335074977614675557, guid: d86bacdc3e5d9e447b33ea264f6c9197, type: 3}
     bulletPrefab: {fileID: 5565608914010123635, guid: dce3fcfc645240d448ceb309008b30bb, type: 3}
     damage: 15
@@ -40,7 +40,7 @@ MonoBehaviour:
     reloadTime: 2
     reloadSFX: {fileID: 0}
     emptyClickSFX: {fileID: 0}
-  - weaponID: 2
+  - weaponID: Shotgun
     weaponPrefab: {fileID: 5335074977614675557, guid: 96443217ed4859142be45c0ad3ab28f6, type: 3}
     bulletPrefab: {fileID: 5565608914010123635, guid: d98ee849f3b1dc54da2ae1c2869e9de7, type: 3}
     damage: 10
@@ -67,7 +67,7 @@ MonoBehaviour:
     reloadTime: 3
     reloadSFX: {fileID: 0}
     emptyClickSFX: {fileID: 0}
-  - weaponID: 3
+  - weaponID: RocketLauncher
     weaponPrefab: {fileID: 5335074977614675557, guid: 307b81ee678644a4188441b36af272de, type: 3}
     bulletPrefab: {fileID: 5565608914010123635, guid: 095da8d7862b9d34586624ea2d30e1d6, type: 3}
     damage: 100
@@ -94,7 +94,7 @@ MonoBehaviour:
     reloadTime: 4
     reloadSFX: {fileID: 0}
     emptyClickSFX: {fileID: 0}
-  - weaponID: 4
+  - weaponID: LaserWeapon
     weaponPrefab: {fileID: 5335074977614675557, guid: 6591bc0e3af2b5d46842026055368cb1, type: 3}
     bulletPrefab: {fileID: 8492104172327841520, guid: 8c51c46e903d92e489745a8fa3e0b21a, type: 3}
     damage: 1

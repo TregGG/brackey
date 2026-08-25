@@ -4,8 +4,8 @@ using UnityEngine;
 public class WeaponPickup : MonoBehaviour
 {
     [Header("Weapon Setup")]
-    [Tooltip("0 = Pistol, 1 = Shotgun, 2 = RPG, 3 = Laser")]
-    public int targetWeaponIndex;
+    [Tooltip("Type the exact weaponID from the database (e.g., 'Shotgun')")]
+    public string targetWeaponID;
 
     [Header("Bonus Ammo (Optional)")]
     public int bonusReserveAmmo = 10;
@@ -25,11 +25,11 @@ public class WeaponPickup : MonoBehaviour
             WeaponHolder playerWeapons = hitInfo.GetComponent<WeaponHolder>();
             if (playerWeapons != null)
             {
-                // 1. Unlock and equip the gun
-                playerWeapons.UnlockWeapon(targetWeaponIndex);
+                // 1. Unlock and equip the gun using the string
+                playerWeapons.UnlockWeapon(targetWeaponID);
 
-                // 2. Give them some reserve ammo so they can keep shooting after the first mag
-                playerWeapons.AddAmmo(targetWeaponIndex, bonusReserveAmmo);
+                // 2. Give them some reserve ammo
+                playerWeapons.AddAmmo(targetWeaponID, bonusReserveAmmo);
 
                 // 3. Play sound and destroy
                 if (pickupSFX != null) AudioSource.PlayClipAtPoint(pickupSFX, transform.position);
