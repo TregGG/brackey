@@ -923,7 +923,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 2
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -1459,35 +1459,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 44.844}
---- !u!1 &1247101920 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3561520344644636632, guid: 0b5f6113b00a5af42aaff7e08fdb0538, type: 3}
-  m_PrefabInstance: {fileID: 7042283544679587270}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1247101937 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 207562189368663937, guid: 0b5f6113b00a5af42aaff7e08fdb0538, type: 3}
   m_PrefabInstance: {fileID: 7042283544679587270}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1247101939
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1247101920}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e76c77c78eeaf7a4cbb37a67dd912c38, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  maxHealth: 100
-  onTakeDamage:
-    m_PersistentCalls:
-      m_Calls: []
-  onDie:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &1369433270
 GameObject:
   m_ObjectHideFlags: 0
@@ -2265,10 +2241,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3561520344644636632, guid: 0b5f6113b00a5af42aaff7e08fdb0538, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1247101939}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0b5f6113b00a5af42aaff7e08fdb0538, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

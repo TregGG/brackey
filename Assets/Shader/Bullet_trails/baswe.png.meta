@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 758d6f5a241b4334198307da850054f2
+guid: 7cef662ee2c9d7643a52305feabdeb0d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4821499735090501366
-    second: Frame 1_0
+      213: -4015016208333126152
+    second: baswe_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Frame 1_0
+      name: baswe_0
       rect:
         serializedVersion: 2
-        x: 89
-        y: 23
-        width: 1738
-        height: 1025
+        x: 0
+        y: 0
+        width: 486
+        height: 488
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6f695b2b67869e240800000000000000
-      internalID: 4821499735090501366
+      spriteID: 8f54edee70cc748c0800000000000000
+      internalID: -4015016208333126152
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Frame 1_0: 4821499735090501366
+      baswe_0: -4015016208333126152
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
