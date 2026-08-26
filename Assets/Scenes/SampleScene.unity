@@ -129,7 +129,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1869252160319627846, guid: 71cb328028c380446a09a7e3c7e2f4d7, type: 3}
       propertyPath: targetWeaponID
-      value: RocketLauncher
+      value: Shotgun
       objectReference: {fileID: 0}
     - target: {fileID: 8248011695449277436, guid: 71cb328028c380446a09a7e3c7e2f4d7, type: 3}
       propertyPath: m_Name
