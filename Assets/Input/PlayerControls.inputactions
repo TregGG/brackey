@@ -97,6 +97,26 @@
                     "priority": 0
                 },
                 {
+                    "name": "Weapon5",
+                    "type": "Button",
+                    "id": "b66470c7-525d-40a9-a78f-4c3e634d7b6e",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "Weapon6",
+                    "type": "Button",
+                    "id": "30670ffc-5931-4ead-be8a-5fac48d032ad",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
                     "name": "ThrowGrenade",
                     "type": "Button",
                     "id": "caa27f32-4df8-4931-976e-9aa3689cebb8",
@@ -269,6 +289,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Weapon4",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "da3bfa31-3cee-434b-82e6-661f3fc09037",
+                    "path": "<Keyboard>/5",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Weapon5",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1d4f8c1d-0380-4aa0-b391-4a6b0388f13f",
+                    "path": "<Keyboard>/6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Weapon6",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

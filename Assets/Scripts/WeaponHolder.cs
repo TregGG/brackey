@@ -39,8 +39,16 @@ public class WeaponHolder : MonoBehaviour
     [Header("UI Canvas")]
     public TextMeshProUGUI ammoText;
 
+    [Header("Lock-On UI")]
+    public RectTransform lockOnUI;
+    private Transform lockedTarget;
+    private bool wasHoldingFire = false;
+    private Camera mainCam;
+
     void Awake()
     {
+        mainCam = Camera.main;
+
         impulseSource = GetComponent<CinemachineImpulseSource>();
         audioSource = GetComponent<AudioSource>();
 
@@ -57,6 +65,8 @@ public class WeaponHolder : MonoBehaviour
         controls.Gameplay.Weapon2.performed += ctx => TryEquipByIndex(1);
         controls.Gameplay.Weapon3.performed += ctx => TryEquipByIndex(2);
         controls.Gameplay.Weapon4.performed += ctx => TryEquipByIndex(3);
+        controls.Gameplay.Weapon4.performed += ctx => TryEquipByIndex(4);
+        controls.Gameplay.Weapon4.performed += ctx => TryEquipByIndex(5);
 
         controls.Gameplay.Reload.performed += ctx => TryReload();
     }
@@ -109,6 +119,14 @@ public class WeaponHolder : MonoBehaviour
         if (reloadCoroutine != null) StopCoroutine(reloadCoroutine);
         isReloading = false;
 
+        // --- THE FIX: a weapon swap always cancels any in-progress lock-on, regardless of
+        // whether the OLD or NEW weapon is a homing weapon. Without this, switching weapons
+        // mid-lock leaves lockOnUI active forever, since the clearing logic only ever ran
+        // from inside the homing branch of Update() for the weapon that started the lock.
+        lockedTarget = null;
+        wasHoldingFire = false;
+        if (lockOnUI != null) lockOnUI.gameObject.SetActive(false);
+
         if (currentGunInstance != null) Destroy(currentGunInstance);
 
         currentWeapon = newWeapon;
@@ -137,21 +155,86 @@ public class WeaponHolder : MonoBehaviour
 
     void Update()
     {
-        // 1. Check if the player is trying to shoot this exact frame
-        bool wantsToShoot = string.IsNullOrEmpty(currentWeapon.weaponID) ? false :
-                            (currentWeapon.isAutomatic ? isHoldingFire : firePressedThisFrame);
-
-        // 2. IMMEDIATELY consume/reset the single-fire flag so it never buffers!
-        firePressedThisFrame = false;
-
-        // 3. Now, if we are reloading, or holding no weapon, just stop here.
         if (isReloading || string.IsNullOrEmpty(currentWeapon.weaponID)) return;
 
-        // 4. If we made it this far, fire the gun!
+        // --- HOMING WEAPON LOGIC (Hold to Lock, Release to Fire) ---
+        if (currentWeapon.isHoming)
+        {
+            if (isHoldingFire)
+            {
+                FindLockOnTarget();
+            }
+            else if (wasHoldingFire) // The exact frame the player releases the trigger
+            {
+                if (Time.time >= nextFireTime && lockedTarget != null)
+                {
+                    Shoot();
+                    nextFireTime = Time.time + currentWeapon.fireRate;
+                }
+
+                // Clear the UI and the lock
+                lockedTarget = null;
+                if (lockOnUI != null) lockOnUI.gameObject.SetActive(false);
+            }
+
+            wasHoldingFire = isHoldingFire;
+            return; // Skip normal automatic firing logic!
+        }
+
+        // --- NORMAL WEAPON LOGIC ---
+        bool wantsToShoot = currentWeapon.isAutomatic ? isHoldingFire : firePressedThisFrame;
+        firePressedThisFrame = false;
+
         if (wantsToShoot && Time.time >= nextFireTime)
         {
             Shoot();
             nextFireTime = Time.time + currentWeapon.fireRate;
+        }
+    }
+
+    private void FindLockOnTarget()
+    {
+        // 1. Get the mouse position in world space
+        Vector2 mousePos = controls.Gameplay.Aim.ReadValue<Vector2>();
+        Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(mousePos);
+
+        // 2. Scan a 5-unit radius around the MOUSE cursor
+        Collider2D[] objectsInRange = Physics2D.OverlapCircleAll(mouseWorldPos, 5f);
+        float closestDist = Mathf.Infinity;
+        Transform bestTarget = null;
+
+        foreach (var obj in objectsInRange)
+        {
+            if (obj.CompareTag("Enemy"))
+            {
+                Health health = obj.GetComponent<Health>();
+                // Only lock onto living things
+                if (health != null && health.GetCurrentHealth() > 0)
+                {
+                    float dist = Vector2.Distance(mouseWorldPos, obj.transform.position);
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        bestTarget = obj.transform;
+                    }
+                }
+            }
+        }
+
+        lockedTarget = bestTarget;
+
+        // 3. Snap the UI Reticle over the enemy
+        if (lockOnUI != null)
+        {
+            if (lockedTarget != null)
+            {
+                lockOnUI.gameObject.SetActive(true);
+                lockOnUI.position = mainCam.WorldToScreenPoint(lockedTarget.position);
+            }
+            else
+            {
+                lockOnUI.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -275,10 +358,14 @@ public class WeaponHolder : MonoBehaviour
         bulletGo.transform.position = currentFirePoint.position;
         bulletGo.transform.rotation = rotation;
 
+        // --- Force it to the PlayerBullet layer! ---
+        bulletGo.layer = LayerMask.NameToLayer("PlayerBullet");
+
         Bullet bulletScript = bulletGo.GetComponent<Bullet>();
         if (bulletScript != null)
         {
-            bulletScript.InitializeBullet(currentWeapon, pool, impulseSource);
+            // --- Pass the lockedTarget ---
+            bulletScript.InitializeBullet(currentWeapon, pool, impulseSource, gameObject.tag, lockedTarget);
         }
     }
 
