@@ -24,6 +24,18 @@ public class Bullet : MonoBehaviour
         playerImpulseSource = impulse;
         lifeTimer = 0f;
 
+        // Wipe any old trails from previous uses before firing
+        TrailRenderer trail = GetComponent<TrailRenderer>();
+        ParticleSystem particle = GetComponent<ParticleSystem>();
+        if (trail != null)
+        {
+            trail.Clear(); // Erases the teleportation streak
+        }
+        if (particle != null)
+        {
+            particle.Clear();
+        }
+
         if (myStats.isLaser)
         {
             rb.linearVelocity = Vector2.zero;
@@ -31,11 +43,9 @@ public class Bullet : MonoBehaviour
         }
         else
         {
-            // Standard physical bullet
             rb.linearVelocity = transform.right * myStats.bulletSpeed;
         }
     }
-
     void Update()
     {
         lifeTimer += Time.deltaTime;
