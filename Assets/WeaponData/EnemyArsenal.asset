@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d6547d18fbc08644a7303c0aaea456f, type: 3}
-  m_Name: BossArsenal
+  m_Name: EnemyArsenal
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDatabase
   weapons:
   - weaponID: Pistol
     weaponPrefab: {fileID: 5335074977614675557, guid: d86bacdc3e5d9e447b33ea264f6c9197, type: 3}
     bulletPrefab: {fileID: 5565608914010123635, guid: dce3fcfc645240d448ceb309008b30bb, type: 3}
     damage: 15
-    fireRate: 0.15
-    bulletSpeed: 150
+    fireRate: 1
+    bulletSpeed: 40
     bulletLifeTime: 5
     isAutomatic: 0
     impactForce: 5
@@ -33,8 +33,18 @@ MonoBehaviour:
     isExplosive: 0
     explosionRadius: 0
     explosionShakeMagnitude: 0
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
     isLaser: 0
     laserRange: 0
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
     hasInfiniteAmmo: 1
     magazineSize: 15
     reloadTime: 2
@@ -62,8 +72,18 @@ MonoBehaviour:
     isExplosive: 0
     explosionRadius: 0
     explosionShakeMagnitude: 0
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
     isLaser: 0
     laserRange: 0
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
     hasInfiniteAmmo: 0
     magazineSize: 7
     reloadTime: 3
@@ -91,8 +111,18 @@ MonoBehaviour:
     isExplosive: 1
     explosionRadius: 10
     explosionShakeMagnitude: 1.5
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
     isLaser: 0
     laserRange: 0
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
     hasInfiniteAmmo: 0
     magazineSize: 1
     reloadTime: 4
@@ -120,8 +150,18 @@ MonoBehaviour:
     isExplosive: 0
     explosionRadius: 10
     explosionShakeMagnitude: 1.5
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
     isLaser: 1
     laserRange: 15
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
     hasInfiniteAmmo: 0
     magazineSize: 50
     reloadTime: 5
