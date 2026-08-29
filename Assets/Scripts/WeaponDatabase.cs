@@ -49,6 +49,23 @@ public struct WeaponStatRow
     public bool isLaser;
     public float laserRange;
 
+    // --- Charge Laser Stats ---
+    [Header("Charge Laser Stats")]
+    [Tooltip("Check this along with isLaser=true to make this a hold-to-charge, release-to-fire weapon")]
+    public bool isChargeLaser;
+    [Tooltip("Seconds of holding fire needed to reach full charge")]
+    public float chargeTime;
+    [Range(0f, 1f)]
+    [Tooltip("Minimum charge fraction (0-1) required to release a shot at all. Releasing earlier than this just cancels the charge with no shot fired.")]
+    public float minChargeFraction;
+    [Range(0f, 1f)]
+    [Tooltip("Damage multiplier applied when released at exactly minChargeFraction. Scales linearly up to 1x (full damage) at full charge. AI-fired shots always use full charge, so this only affects the player.")]
+    public float minDamageMultiplier;
+    [Tooltip("Optional looping sound played while charging")]
+    public AudioClip chargeSFX;
+    [Tooltip("Optional VFX (e.g. a growing energy orb) spawned at the fire point while charging")]
+    public GameObject chargeVFX;
+
     [Header("Ammo & Reloading")]
     public bool hasInfiniteAmmo;
     public int magazineSize;

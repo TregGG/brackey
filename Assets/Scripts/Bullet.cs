@@ -234,7 +234,7 @@ public class Bullet : MonoBehaviour
 
     private void Explode(Vector2 blastCenter)
     {
-        // --- THE FIX: Play the effects! ---
+        // --- Play the effects! ---
         if (myStats.impactSFX != null) AudioSource.PlayClipAtPoint(myStats.impactSFX, blastCenter);
         if (myStats.impactVFX != null) Instantiate(myStats.impactVFX, blastCenter, Quaternion.identity);
 

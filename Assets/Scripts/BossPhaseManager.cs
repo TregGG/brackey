@@ -52,23 +52,44 @@ public class BossPhaseManager : MonoBehaviour
         {
             yield return new WaitForSeconds(attackCooldown);
 
-            if (bossSprite != null) bossSprite.color = telegraphColor;
-            yield return new WaitForSeconds(telegraphDuration);
+            bool usingChargeLaser = weaponController != null && weaponController.IsCurrentWeaponChargeLaser();
 
-            if (bossSprite != null) bossSprite.color = normalColor;
-            if (weaponController != null)
+            if (usingChargeLaser)
             {
-                // --- THE FIX: Ask the specific gun how to fire! ---
-                int burstCount = weaponController.GetAIBurstCount();
-                float burstSpacing = weaponController.GetAIBurstSpacing();
+                // --- CHARGE LASER TELEGRAPH: the sprite flashes for the weapon's own chargeTime
+                // (instead of the fixed telegraphDuration used below), giving a clear wind-up window
+                // that scales with however long that specific weapon takes to charge. AI always
+                // releases at full charge once the window ends - no partial-charge damage for enemies.
+                float chargeTime = weaponController.GetChargeTime();
 
-                for (int i = 0; i < burstCount; i++)
+                if (bossSprite != null) bossSprite.color = telegraphColor;
+                weaponController.BeginCharging();
+
+                yield return new WaitForSeconds(chargeTime);
+
+                if (bossSprite != null) bossSprite.color = normalColor;
+                weaponController.FireFullyChargedShot();
+            }
+            else
+            {
+                if (bossSprite != null) bossSprite.color = telegraphColor;
+                yield return new WaitForSeconds(telegraphDuration);
+
+                if (bossSprite != null) bossSprite.color = normalColor;
+                if (weaponController != null)
                 {
-                    weaponController.TryFire();
+                    // --- Ask the specific gun how to fire! ---
+                    int burstCount = weaponController.GetAIBurstCount();
+                    float burstSpacing = weaponController.GetAIBurstSpacing();
 
-                    if (i < burstCount - 1)
+                    for (int i = 0; i < burstCount; i++)
                     {
-                        yield return new WaitForSeconds(burstSpacing);
+                        weaponController.TryFire();
+
+                        if (i < burstCount - 1)
+                        {
+                            yield return new WaitForSeconds(burstSpacing);
+                        }
                     }
                 }
             }
@@ -80,18 +101,23 @@ public class BossPhaseManager : MonoBehaviour
         if (currentPhase == 1 && isFightActive && myHealth.GetHealthPercentage() <= 0.5f)
         {
             currentPhase = 2;
-            attackCooldown = 1f;
+            attackCooldown = 1f; 
             Debug.Log("PHASE 2!");
 
             // Example: If you wanted, you could now safely do this:
-            // weaponController.EquipWeapon("Laser"); 
-            // And the burst math would automatically update itself!
+            // weaponController.EquipWeapon("Laser");
+            // And the burst math / charge-laser telegraph would automatically update itself!
         }
     }
 
     private void Die()
     {
         isFightActive = false;
+
+        // If the boss dies mid-charge, make sure that charge's VFX/SFX don't get orphaned when
+        // we stop the coroutine driving it below.
+        if (weaponController != null) weaponController.CancelCharge();
+
         StopAllCoroutines();
         Destroy(gameObject);
     }

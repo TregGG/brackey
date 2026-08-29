@@ -20,6 +20,9 @@ public class EnemyWeaponController : MonoBehaviour
     // Object Pooling for enemy bullets
     private Dictionary<GameObject, ObjectPool<GameObject>> bulletPools = new Dictionary<GameObject, ObjectPool<GameObject>>();
 
+    // --- Charge laser runtime state (driven externally, e.g. by BossPhaseManager's telegraph coroutine) ---
+    private GameObject activeChargeVFX;
+
     void Awake()
     {
         audioSource = GetComponent<AudioSource>();
@@ -38,6 +41,11 @@ public class EnemyWeaponController : MonoBehaviour
         WeaponStatRow foundWeapon = database.weapons.Find(w => w.weaponID == newWeaponID);
         if (!string.IsNullOrEmpty(foundWeapon.weaponID))
         {
+            // Cancel any charge in progress for the weapon we're leaving - same reasoning as the
+            // player-side fix: otherwise a mid-fight weapon swap (e.g. a boss phase change) can
+            // leave charge VFX/SFX running forever on a weapon that's no longer equipped.
+            EndChargeEffects();
+
             currentWeapon = foundWeapon;
             weaponID = newWeaponID;
         }
@@ -51,6 +59,69 @@ public class EnemyWeaponController : MonoBehaviour
 
         Shoot();
         nextFireTime = Time.time + currentWeapon.fireRate;
+    }
+
+    // --- Charge laser support: the AI doesn't "hold a button," so a driver script (e.g.
+    // BossPhaseManager) calls BeginCharging(), waits GetChargeTime() seconds while playing its
+    // own telegraph animation, then calls FireFullyChargedShot(). AI shots always release at
+    // full charge - the anticipation comes from the telegraph window itself, not partial damage.
+    public bool IsCurrentWeaponChargeLaser()
+    {
+        return currentWeapon.isChargeLaser;
+    }
+
+    public float GetChargeTime()
+    {
+        return currentWeapon.chargeTime;
+    }
+
+    public void BeginCharging()
+    {
+        if (currentWeapon.chargeVFX != null && firePoint != null)
+        {
+            activeChargeVFX = Instantiate(currentWeapon.chargeVFX, firePoint.position, firePoint.rotation, firePoint);
+        }
+
+        if (currentWeapon.chargeSFX != null)
+        {
+            audioSource.loop = true;
+            audioSource.clip = currentWeapon.chargeSFX;
+            audioSource.Play();
+        }
+    }
+
+    public void FireFullyChargedShot()
+    {
+        EndChargeEffects();
+
+        if (string.IsNullOrEmpty(currentWeapon.weaponID)) return;
+
+        // AI always fires at full charge, so currentWeapon.damage is used as-is - no need for
+        // the scaled-copy trick the player side uses for partial charges.
+        Shoot();
+    }
+
+    // Call this if the fight/attack is interrupted (e.g. the boss dies) while a charge is
+    // mid-flight, so its VFX/SFX don't get orphaned when the coroutine driving it is stopped.
+    public void CancelCharge()
+    {
+        EndChargeEffects();
+    }
+
+    private void EndChargeEffects()
+    {
+        if (activeChargeVFX != null)
+        {
+            Destroy(activeChargeVFX);
+            activeChargeVFX = null;
+        }
+
+        if (audioSource.loop)
+        {
+            audioSource.Stop();
+            audioSource.loop = false;
+            audioSource.clip = null;
+        }
     }
 
     private void Shoot()

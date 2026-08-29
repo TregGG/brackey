@@ -45,6 +45,11 @@ public class WeaponHolder : MonoBehaviour
     private bool wasHoldingFire = false;
     private Camera mainCam;
 
+    // --- Charge Laser runtime state ---
+    private bool isCharging = false;
+    private float chargeStartTime;
+    private GameObject activeChargeVFX;
+
     void Awake()
     {
         mainCam = Camera.main;
@@ -61,12 +66,23 @@ public class WeaponHolder : MonoBehaviour
         controls.Gameplay.Fire.canceled += ctx => isHoldingFire = false;
 
         // --- INVENTORY INPUTS ---
-        controls.Gameplay.Weapon1.performed += ctx => TryEquipByIndex(0);
-        controls.Gameplay.Weapon2.performed += ctx => TryEquipByIndex(1);
-        controls.Gameplay.Weapon3.performed += ctx => TryEquipByIndex(2);
-        controls.Gameplay.Weapon4.performed += ctx => TryEquipByIndex(3);
-        controls.Gameplay.Weapon4.performed += ctx => TryEquipByIndex(4);
-        controls.Gameplay.Weapon4.performed += ctx => TryEquipByIndex(5);
+        InputAction[] weaponSlotActions =
+        {
+            controls.Gameplay.Weapon1,
+            controls.Gameplay.Weapon2,
+            controls.Gameplay.Weapon3,
+            controls.Gameplay.Weapon4,
+            controls.Gameplay.Weapon5,
+            controls.Gameplay.Weapon6
+        };
+
+        for (int i = 0; i < weaponSlotActions.Length; i++)
+        {
+            int slotIndex = i; // local copy - capturing "i" directly would make every closure
+                               // below share the same variable, so by the time any of them
+                               // actually fired they'd all read the loop's final value.
+            weaponSlotActions[i].performed += ctx => TryEquipByIndex(slotIndex);
+        }
 
         controls.Gameplay.Reload.performed += ctx => TryReload();
     }
@@ -119,13 +135,18 @@ public class WeaponHolder : MonoBehaviour
         if (reloadCoroutine != null) StopCoroutine(reloadCoroutine);
         isReloading = false;
 
-        // --- THE FIX: a weapon swap always cancels any in-progress lock-on, regardless of
-        // whether the OLD or NEW weapon is a homing weapon. Without this, switching weapons
-        // mid-lock leaves lockOnUI active forever, since the clearing logic only ever ran
-        // from inside the homing branch of Update() for the weapon that started the lock.
+        // A weapon swap always cancels any in-progress lock-on, regardless of whether the OLD
+        // or NEW weapon is a homing weapon. Without this, switching weapons mid-lock leaves
+        // lockOnUI active forever, since the clearing logic only ever ran from inside the
+        // homing branch of Update() for the weapon that started the lock.
         lockedTarget = null;
         wasHoldingFire = false;
         if (lockOnUI != null) lockOnUI.gameObject.SetActive(false);
+
+        // Same reasoning applies to an in-progress laser charge: cancel its VFX/SFX and reset
+        // state so switching away from a charging weapon doesn't leave it running forever.
+        EndChargeEffects();
+        isCharging = false;
 
         if (currentGunInstance != null) Destroy(currentGunInstance);
 
@@ -156,6 +177,13 @@ public class WeaponHolder : MonoBehaviour
     void Update()
     {
         if (isReloading || string.IsNullOrEmpty(currentWeapon.weaponID)) return;
+
+        // --- CHARGE LASER LOGIC (Hold to Charge, Release to Fire) ---
+        if (currentWeapon.isChargeLaser)
+        {
+            HandleChargeLaser();
+            return;
+        }
 
         // --- HOMING WEAPON LOGIC (Hold to Lock, Release to Fire) ---
         if (currentWeapon.isHoming)
@@ -189,6 +217,128 @@ public class WeaponHolder : MonoBehaviour
         {
             Shoot();
             nextFireTime = Time.time + currentWeapon.fireRate;
+        }
+    }
+
+    // --- Charge laser state machine: mirrors the homing "hold to lock, release to fire" pattern ---
+    private void HandleChargeLaser()
+    {
+        if (isHoldingFire && !isCharging)
+        {
+            // Just started holding the trigger - begin the charge
+            isCharging = true;
+            chargeStartTime = Time.time;
+            BeginChargeEffects();
+        }
+        else if (!isHoldingFire && isCharging)
+        {
+            // Released - fire based on however long we actually held it
+            float heldDuration = Time.time - chargeStartTime;
+            float chargeFraction = currentWeapon.chargeTime > 0f
+                ? Mathf.Clamp01(heldDuration / currentWeapon.chargeTime)
+                : 1f;
+
+            EndChargeEffects();
+            isCharging = false;
+
+            // Releasing too early just cancels the shot with no visual/damage - true "fizzle."
+            // Cooldown (nextFireTime) is still respected even on a fully-charged release.
+            if (chargeFraction >= currentWeapon.minChargeFraction && Time.time >= nextFireTime)
+            {
+                FireChargedLaser(chargeFraction);
+                nextFireTime = Time.time + currentWeapon.fireRate;
+            }
+        }
+    }
+
+    private void BeginChargeEffects()
+    {
+        if (currentWeapon.chargeVFX != null && currentFirePoint != null)
+        {
+            activeChargeVFX = Instantiate(currentWeapon.chargeVFX, currentFirePoint.position, currentFirePoint.rotation, currentFirePoint);
+        }
+
+        if (currentWeapon.chargeSFX != null)
+        {
+            // Uses the main clip/loop channel so it doesn't collide with PlayOneShot fire SFX,
+            // which plays on its own internal channel independently of audioSource.clip.
+            audioSource.loop = true;
+            audioSource.clip = currentWeapon.chargeSFX;
+            audioSource.Play();
+        }
+    }
+
+    private void EndChargeEffects()
+    {
+        if (activeChargeVFX != null)
+        {
+            Destroy(activeChargeVFX);
+            activeChargeVFX = null;
+        }
+
+        if (audioSource.loop)
+        {
+            audioSource.Stop();
+            audioSource.loop = false;
+            audioSource.clip = null;
+        }
+    }
+
+    private void FireChargedLaser(float chargeFraction)
+    {
+        if (currentAmmoTracker[currentWeapon.weaponID] <= 0)
+        {
+            TryReload();
+            return;
+        }
+
+        currentAmmoTracker[currentWeapon.weaponID]--;
+        UpdateAmmoUI();
+
+        if (currentAmmoTracker[currentWeapon.weaponID] <= 0)
+        {
+            TryReload();
+        }
+
+        if (currentWeapon.useScreenShake && currentWeapon.shakeMagnitude > 0)
+        {
+            impulseSource.GenerateImpulseWithForce(currentWeapon.shakeMagnitude);
+        }
+
+        if (currentWeapon.fireSFX != null)
+        {
+            audioSource.pitch = 1f;
+            audioSource.PlayOneShot(currentWeapon.fireSFX);
+        }
+
+        if (currentWeapon.muzzleFlashVFX != null)
+        {
+            Instantiate(currentWeapon.muzzleFlashVFX, currentFirePoint.position, currentFirePoint.rotation, currentFirePoint);
+        }
+
+        // --- Scale damage by how fully charged the shot was. WeaponStatRow is a struct, so
+        // this copy is local and never touches the real currentWeapon or its ammo/state.
+        WeaponStatRow chargedStats = currentWeapon;
+        chargedStats.damage = Mathf.Lerp(currentWeapon.damage * currentWeapon.minDamageMultiplier, currentWeapon.damage, chargeFraction);
+
+        int projectiles = currentWeapon.projectilesPerShot;
+
+        if (projectiles <= 1)
+        {
+            SpawnBullet(currentFirePoint.rotation, chargedStats);
+            return;
+        }
+
+        float angleStep = currentWeapon.spreadAngle / (projectiles - 1);
+        float startingAngle = -(currentWeapon.spreadAngle / 2f);
+
+        for (int i = 0; i < projectiles; i++)
+        {
+            float currentAngle = startingAngle + (angleStep * i);
+            Quaternion rotationOffset = Quaternion.Euler(0, 0, currentAngle);
+            Quaternion finalRotation = currentFirePoint.rotation * rotationOffset;
+
+            SpawnBullet(finalRotation, chargedStats);
         }
     }
 
@@ -274,7 +424,7 @@ public class WeaponHolder : MonoBehaviour
 
         if (projectiles <= 1)
         {
-            SpawnBullet(currentFirePoint.rotation);
+            SpawnBullet(currentFirePoint.rotation, currentWeapon);
             return;
         }
 
@@ -287,7 +437,7 @@ public class WeaponHolder : MonoBehaviour
             Quaternion rotationOffset = Quaternion.Euler(0, 0, currentAngle);
             Quaternion finalRotation = currentFirePoint.rotation * rotationOffset;
 
-            SpawnBullet(finalRotation);
+            SpawnBullet(finalRotation, currentWeapon);
         }
     }
 
@@ -350,9 +500,9 @@ public class WeaponHolder : MonoBehaviour
         }
     }
 
-    private void SpawnBullet(Quaternion rotation)
+    private void SpawnBullet(Quaternion rotation, WeaponStatRow statsToUse)
     {
-        ObjectPool<GameObject> pool = GetBulletPool(currentWeapon.bulletPrefab);
+        ObjectPool<GameObject> pool = GetBulletPool(statsToUse.bulletPrefab);
         GameObject bulletGo = pool.Get();
 
         bulletGo.transform.position = currentFirePoint.position;
@@ -365,7 +515,7 @@ public class WeaponHolder : MonoBehaviour
         if (bulletScript != null)
         {
             // --- Pass the lockedTarget ---
-            bulletScript.InitializeBullet(currentWeapon, pool, impulseSource, gameObject.tag, lockedTarget);
+            bulletScript.InitializeBullet(statsToUse, pool, impulseSource, gameObject.tag, lockedTarget);
         }
     }
 
