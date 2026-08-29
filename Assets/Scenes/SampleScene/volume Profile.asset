@@ -49,7 +49,7 @@ MonoBehaviour:
     m_Value: 0.73
   intensity:
     m_OverrideState: 1
-    m_Value: 0.84
+    m_Value: 0.91
   scatter:
     m_OverrideState: 0
     m_Value: 0.7
@@ -109,7 +109,7 @@ MonoBehaviour:
   active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 0.26
+    m_Value: 0.14
   xMultiplier:
     m_OverrideState: 1
     m_Value: 1

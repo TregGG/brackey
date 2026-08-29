@@ -124,7 +124,7 @@ MonoBehaviour:
     chargeSFX: {fileID: 0}
     chargeVFX: {fileID: 0}
     hasInfiniteAmmo: 0
-    magazineSize: 1
+    magazineSize: 100
     reloadTime: 4
     reloadSFX: {fileID: 0}
     emptyClickSFX: {fileID: 0}
