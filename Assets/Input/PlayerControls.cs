@@ -183,6 +183,26 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""priority"": 0
                 },
                 {
+                    ""name"": ""Weapon5"",
+                    ""type"": ""Button"",
+                    ""id"": ""b66470c7-525d-40a9-a78f-4c3e634d7b6e"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""Weapon6"",
+                    ""type"": ""Button"",
+                    ""id"": ""30670ffc-5931-4ead-be8a-5fac48d032ad"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
                     ""name"": ""ThrowGrenade"",
                     ""type"": ""Button"",
                     ""id"": ""caa27f32-4df8-4931-976e-9aa3689cebb8"",
@@ -360,6 +380,28 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""da3bfa31-3cee-434b-82e6-661f3fc09037"",
+                    ""path"": ""<Keyboard>/5"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Weapon5"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1d4f8c1d-0380-4aa0-b391-4a6b0388f13f"",
+                    ""path"": ""<Keyboard>/6"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Weapon6"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""018e3c93-a981-4e19-b438-2859e598c480"",
                     ""path"": ""<Keyboard>/g"",
                     ""interactions"": """",
@@ -396,6 +438,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Gameplay_Weapon2 = m_Gameplay.FindAction("Weapon2", throwIfNotFound: true);
         m_Gameplay_Weapon3 = m_Gameplay.FindAction("Weapon3", throwIfNotFound: true);
         m_Gameplay_Weapon4 = m_Gameplay.FindAction("Weapon4", throwIfNotFound: true);
+        m_Gameplay_Weapon5 = m_Gameplay.FindAction("Weapon5", throwIfNotFound: true);
+        m_Gameplay_Weapon6 = m_Gameplay.FindAction("Weapon6", throwIfNotFound: true);
         m_Gameplay_ThrowGrenade = m_Gameplay.FindAction("ThrowGrenade", throwIfNotFound: true);
         m_Gameplay_Reload = m_Gameplay.FindAction("Reload", throwIfNotFound: true);
     }
@@ -487,6 +531,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Weapon2;
     private readonly InputAction m_Gameplay_Weapon3;
     private readonly InputAction m_Gameplay_Weapon4;
+    private readonly InputAction m_Gameplay_Weapon5;
+    private readonly InputAction m_Gameplay_Weapon6;
     private readonly InputAction m_Gameplay_ThrowGrenade;
     private readonly InputAction m_Gameplay_Reload;
     /// <summary>
@@ -536,6 +582,14 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Gameplay/Weapon4".
         /// </summary>
         public InputAction @Weapon4 => m_Wrapper.m_Gameplay_Weapon4;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/Weapon5".
+        /// </summary>
+        public InputAction @Weapon5 => m_Wrapper.m_Gameplay_Weapon5;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/Weapon6".
+        /// </summary>
+        public InputAction @Weapon6 => m_Wrapper.m_Gameplay_Weapon6;
         /// <summary>
         /// Provides access to the underlying input action "Gameplay/ThrowGrenade".
         /// </summary>
@@ -597,6 +651,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Weapon4.started += instance.OnWeapon4;
             @Weapon4.performed += instance.OnWeapon4;
             @Weapon4.canceled += instance.OnWeapon4;
+            @Weapon5.started += instance.OnWeapon5;
+            @Weapon5.performed += instance.OnWeapon5;
+            @Weapon5.canceled += instance.OnWeapon5;
+            @Weapon6.started += instance.OnWeapon6;
+            @Weapon6.performed += instance.OnWeapon6;
+            @Weapon6.canceled += instance.OnWeapon6;
             @ThrowGrenade.started += instance.OnThrowGrenade;
             @ThrowGrenade.performed += instance.OnThrowGrenade;
             @ThrowGrenade.canceled += instance.OnThrowGrenade;
@@ -641,6 +701,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Weapon4.started -= instance.OnWeapon4;
             @Weapon4.performed -= instance.OnWeapon4;
             @Weapon4.canceled -= instance.OnWeapon4;
+            @Weapon5.started -= instance.OnWeapon5;
+            @Weapon5.performed -= instance.OnWeapon5;
+            @Weapon5.canceled -= instance.OnWeapon5;
+            @Weapon6.started -= instance.OnWeapon6;
+            @Weapon6.performed -= instance.OnWeapon6;
+            @Weapon6.canceled -= instance.OnWeapon6;
             @ThrowGrenade.started -= instance.OnThrowGrenade;
             @ThrowGrenade.performed -= instance.OnThrowGrenade;
             @ThrowGrenade.canceled -= instance.OnThrowGrenade;
@@ -750,6 +816,20 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnWeapon4(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Weapon5" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnWeapon5(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Weapon6" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnWeapon6(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "ThrowGrenade" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

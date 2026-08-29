@@ -1,0 +1,249 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d6547d18fbc08644a7303c0aaea456f, type: 3}
+  m_Name: PlayerArsenal
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponDatabase
+  weapons:
+  - weaponID: Pistol
+    weaponPrefab: {fileID: 5335074977614675557, guid: d86bacdc3e5d9e447b33ea264f6c9197, type: 3}
+    bulletPrefab: {fileID: 5565608914010123635, guid: dce3fcfc645240d448ceb309008b30bb, type: 3}
+    damage: 15
+    fireRate: 0.15
+    bulletSpeed: 150
+    bulletLifeTime: 5
+    isAutomatic: 0
+    impactForce: 5
+    projectilesPerShot: 1
+    spreadAngle: 0
+    useScreenShake: 0
+    shakeMagnitude: 0
+    fireSFX: {fileID: 8300000, guid: 7b889162724f05c4f95da46adbd50ef7, type: 3}
+    muzzleFlashVFX: {fileID: 0}
+    impactSFX: {fileID: 0}
+    impactVFX: {fileID: 0}
+    isExplosive: 0
+    explosionRadius: 0
+    explosionShakeMagnitude: 0
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
+    isLaser: 0
+    laserRange: 0
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
+    hasInfiniteAmmo: 1
+    magazineSize: 15
+    reloadTime: 2
+    reloadSFX: {fileID: 0}
+    emptyClickSFX: {fileID: 0}
+    aiBurstCount: 0
+    aiBurstSpacing: 0
+  - weaponID: Shotgun
+    weaponPrefab: {fileID: 5335074977614675557, guid: 96443217ed4859142be45c0ad3ab28f6, type: 3}
+    bulletPrefab: {fileID: 5565608914010123635, guid: d98ee849f3b1dc54da2ae1c2869e9de7, type: 3}
+    damage: 10
+    fireRate: 0.5
+    bulletSpeed: 100
+    bulletLifeTime: 5
+    isAutomatic: 0
+    impactForce: 3
+    projectilesPerShot: 5
+    spreadAngle: 30
+    useScreenShake: 1
+    shakeMagnitude: 0.5
+    fireSFX: {fileID: 8300000, guid: 9db176e1ad4d89647a0bbcbd8b28693b, type: 3}
+    muzzleFlashVFX: {fileID: 0}
+    impactSFX: {fileID: 0}
+    impactVFX: {fileID: 0}
+    isExplosive: 0
+    explosionRadius: 0
+    explosionShakeMagnitude: 0
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
+    isLaser: 0
+    laserRange: 0
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
+    hasInfiniteAmmo: 0
+    magazineSize: 7
+    reloadTime: 3
+    reloadSFX: {fileID: 0}
+    emptyClickSFX: {fileID: 0}
+    aiBurstCount: 0
+    aiBurstSpacing: 0
+  - weaponID: RocketLauncher
+    weaponPrefab: {fileID: 5335074977614675557, guid: 307b81ee678644a4188441b36af272de, type: 3}
+    bulletPrefab: {fileID: 5565608914010123635, guid: 095da8d7862b9d34586624ea2d30e1d6, type: 3}
+    damage: 100
+    fireRate: 0.5
+    bulletSpeed: 100
+    bulletLifeTime: 5
+    isAutomatic: 0
+    impactForce: 20
+    projectilesPerShot: 1
+    spreadAngle: 0
+    useScreenShake: 1
+    shakeMagnitude: 0
+    fireSFX: {fileID: 8300000, guid: 9db176e1ad4d89647a0bbcbd8b28693b, type: 3}
+    muzzleFlashVFX: {fileID: 0}
+    impactSFX: {fileID: 0}
+    impactVFX: {fileID: 0}
+    isExplosive: 1
+    explosionRadius: 10
+    explosionShakeMagnitude: 1.5
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
+    isLaser: 0
+    laserRange: 0
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
+    hasInfiniteAmmo: 0
+    magazineSize: 1
+    reloadTime: 4
+    reloadSFX: {fileID: 0}
+    emptyClickSFX: {fileID: 0}
+    aiBurstCount: 0
+    aiBurstSpacing: 0
+  - weaponID: LaserWeapon
+    weaponPrefab: {fileID: 5335074977614675557, guid: 6591bc0e3af2b5d46842026055368cb1, type: 3}
+    bulletPrefab: {fileID: 8492104172327841520, guid: 8c51c46e903d92e489745a8fa3e0b21a, type: 3}
+    damage: 6
+    fireRate: 0.05
+    bulletSpeed: 100
+    bulletLifeTime: 0.04
+    isAutomatic: 1
+    impactForce: 0.2
+    projectilesPerShot: 1
+    spreadAngle: 0
+    useScreenShake: 0
+    shakeMagnitude: 0
+    fireSFX: {fileID: 8300000, guid: 21b2fe6f847b67148933ad36a9edf9e3, type: 3}
+    muzzleFlashVFX: {fileID: 0}
+    impactSFX: {fileID: 0}
+    impactVFX: {fileID: 0}
+    isExplosive: 0
+    explosionRadius: 10
+    explosionShakeMagnitude: 1.5
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
+    isLaser: 1
+    laserRange: 15
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
+    hasInfiniteAmmo: 0
+    magazineSize: 50
+    reloadTime: 5
+    reloadSFX: {fileID: 0}
+    emptyClickSFX: {fileID: 0}
+    aiBurstCount: 0
+    aiBurstSpacing: 0
+  - weaponID: HomingLauncher
+    weaponPrefab: {fileID: 5335074977614675557, guid: 1457f924258e41a48a21bb933015b638, type: 3}
+    bulletPrefab: {fileID: 5565608914010123635, guid: 867f58b525bad77499f326a3f56dc3c8, type: 3}
+    damage: 140
+    fireRate: 1
+    bulletSpeed: 10
+    bulletLifeTime: 10
+    isAutomatic: 0
+    impactForce: 25
+    projectilesPerShot: 1
+    spreadAngle: 0
+    useScreenShake: 1
+    shakeMagnitude: 0.1
+    fireSFX: {fileID: 8300000, guid: 947719fd38845824ba3638af9d8e4e54, type: 3}
+    muzzleFlashVFX: {fileID: 0}
+    impactSFX: {fileID: 0}
+    impactVFX: {fileID: 0}
+    isExplosive: 1
+    explosionRadius: 15
+    explosionShakeMagnitude: 1.5
+    isHoming: 1
+    homingTurnSpeed: 300
+    homingDetectionRadius: 200
+    homingDetonationRadius: 0
+    isLaser: 1
+    laserRange: 15
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
+    hasInfiniteAmmo: 0
+    magazineSize: 5
+    reloadTime: 2
+    reloadSFX: {fileID: 0}
+    emptyClickSFX: {fileID: 0}
+    aiBurstCount: 0
+    aiBurstSpacing: 0
+  - weaponID: ChargeLaser
+    weaponPrefab: {fileID: 5335074977614675557, guid: 045f1d218354fb6429fc130fd5a85dec, type: 3}
+    bulletPrefab: {fileID: 8492104172327841520, guid: 3a8c9bc76541cb74d8e55240f3bb11fe, type: 3}
+    damage: 200
+    fireRate: 1
+    bulletSpeed: 10
+    bulletLifeTime: 1
+    isAutomatic: 0
+    impactForce: 25
+    projectilesPerShot: 1
+    spreadAngle: 0
+    useScreenShake: 1
+    shakeMagnitude: 0.1
+    fireSFX: {fileID: 8300000, guid: 947719fd38845824ba3638af9d8e4e54, type: 3}
+    muzzleFlashVFX: {fileID: 0}
+    impactSFX: {fileID: 0}
+    impactVFX: {fileID: 0}
+    isExplosive: 0
+    explosionRadius: 15
+    explosionShakeMagnitude: 1.5
+    isHoming: 0
+    homingTurnSpeed: 300
+    homingDetectionRadius: 200
+    homingDetonationRadius: 0
+    isLaser: 1
+    laserRange: 15
+    isChargeLaser: 1
+    chargeTime: 2
+    minChargeFraction: 0.3
+    minDamageMultiplier: 0.4
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
+    hasInfiniteAmmo: 0
+    magazineSize: 10
+    reloadTime: 1
+    reloadSFX: {fileID: 0}
+    emptyClickSFX: {fileID: 0}
+    aiBurstCount: 0
+    aiBurstSpacing: 0

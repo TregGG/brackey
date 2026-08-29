@@ -13,8 +13,11 @@ public class Health : MonoBehaviour
     public UnityEvent onDie;
 
     private bool isDead = false;
+    public float GetHealthPercentage() { return currentHealth / maxHealth; }
+    public float GetCurrentHealth() { return currentHealth; }
+    public float GetMaxHealth() { return maxHealth; }
 
-    void Start()
+    void Awake()
     {
         currentHealth = maxHealth;
     }

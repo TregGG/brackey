@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d6547d18fbc08644a7303c0aaea456f, type: 3}
-  m_Name: WeaponDB
+  m_Name: EnemyArsenal
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDatabase
   weapons:
   - weaponID: Pistol
     weaponPrefab: {fileID: 5335074977614675557, guid: d86bacdc3e5d9e447b33ea264f6c9197, type: 3}
     bulletPrefab: {fileID: 5565608914010123635, guid: dce3fcfc645240d448ceb309008b30bb, type: 3}
     damage: 15
-    fireRate: 0.15
-    bulletSpeed: 150
+    fireRate: 1
+    bulletSpeed: 40
     bulletLifeTime: 5
     isAutomatic: 0
     impactForce: 5
@@ -33,24 +33,36 @@ MonoBehaviour:
     isExplosive: 0
     explosionRadius: 0
     explosionShakeMagnitude: 0
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
     isLaser: 0
     laserRange: 0
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
     hasInfiniteAmmo: 1
     magazineSize: 15
     reloadTime: 2
     reloadSFX: {fileID: 0}
     emptyClickSFX: {fileID: 0}
+    aiBurstCount: 1
+    aiBurstSpacing: 0
   - weaponID: Shotgun
     weaponPrefab: {fileID: 5335074977614675557, guid: 96443217ed4859142be45c0ad3ab28f6, type: 3}
     bulletPrefab: {fileID: 5565608914010123635, guid: d98ee849f3b1dc54da2ae1c2869e9de7, type: 3}
     damage: 10
-    fireRate: 0.5
+    fireRate: 0.1
     bulletSpeed: 100
     bulletLifeTime: 5
     isAutomatic: 0
     impactForce: 3
-    projectilesPerShot: 5
-    spreadAngle: 30
+    projectilesPerShot: 8
+    spreadAngle: 15
     useScreenShake: 1
     shakeMagnitude: 0.5
     fireSFX: {fileID: 8300000, guid: 9db176e1ad4d89647a0bbcbd8b28693b, type: 3}
@@ -60,13 +72,25 @@ MonoBehaviour:
     isExplosive: 0
     explosionRadius: 0
     explosionShakeMagnitude: 0
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
     isLaser: 0
     laserRange: 0
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
     hasInfiniteAmmo: 0
     magazineSize: 7
     reloadTime: 3
     reloadSFX: {fileID: 0}
     emptyClickSFX: {fileID: 0}
+    aiBurstCount: 3
+    aiBurstSpacing: 0
   - weaponID: RocketLauncher
     weaponPrefab: {fileID: 5335074977614675557, guid: 307b81ee678644a4188441b36af272de, type: 3}
     bulletPrefab: {fileID: 5565608914010123635, guid: 095da8d7862b9d34586624ea2d30e1d6, type: 3}
@@ -87,17 +111,29 @@ MonoBehaviour:
     isExplosive: 1
     explosionRadius: 10
     explosionShakeMagnitude: 1.5
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
     isLaser: 0
     laserRange: 0
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
     hasInfiniteAmmo: 0
     magazineSize: 100
     reloadTime: 4
     reloadSFX: {fileID: 0}
     emptyClickSFX: {fileID: 0}
+    aiBurstCount: 0
+    aiBurstSpacing: 0
   - weaponID: LaserWeapon
     weaponPrefab: {fileID: 5335074977614675557, guid: 6591bc0e3af2b5d46842026055368cb1, type: 3}
     bulletPrefab: {fileID: 8492104172327841520, guid: 8c51c46e903d92e489745a8fa3e0b21a, type: 3}
-    damage: 1
+    damage: 20
     fireRate: 0.05
     bulletSpeed: 100
     bulletLifeTime: 0.04
@@ -114,10 +150,22 @@ MonoBehaviour:
     isExplosive: 0
     explosionRadius: 10
     explosionShakeMagnitude: 1.5
+    isHoming: 0
+    homingTurnSpeed: 0
+    homingDetectionRadius: 0
+    homingDetonationRadius: 0
     isLaser: 1
     laserRange: 15
+    isChargeLaser: 0
+    chargeTime: 0
+    minChargeFraction: 0
+    minDamageMultiplier: 0
+    chargeSFX: {fileID: 0}
+    chargeVFX: {fileID: 0}
     hasInfiniteAmmo: 0
     magazineSize: 50
     reloadTime: 5
     reloadSFX: {fileID: 0}
     emptyClickSFX: {fileID: 0}
+    aiBurstCount: 10
+    aiBurstSpacing: 0.1

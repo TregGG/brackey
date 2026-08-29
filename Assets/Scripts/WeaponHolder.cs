@@ -39,8 +39,21 @@ public class WeaponHolder : MonoBehaviour
     [Header("UI Canvas")]
     public TextMeshProUGUI ammoText;
 
+    [Header("Lock-On UI")]
+    public RectTransform lockOnUI;
+    private Transform lockedTarget;
+    private bool wasHoldingFire = false;
+    private Camera mainCam;
+
+    // --- Charge Laser runtime state ---
+    private bool isCharging = false;
+    private float chargeStartTime;
+    private GameObject activeChargeVFX;
+
     void Awake()
     {
+        mainCam = Camera.main;
+
         impulseSource = GetComponent<CinemachineImpulseSource>();
         audioSource = GetComponent<AudioSource>();
 
@@ -53,10 +66,23 @@ public class WeaponHolder : MonoBehaviour
         controls.Gameplay.Fire.canceled += ctx => isHoldingFire = false;
 
         // --- INVENTORY INPUTS ---
-        controls.Gameplay.Weapon1.performed += ctx => TryEquipByIndex(0);
-        controls.Gameplay.Weapon2.performed += ctx => TryEquipByIndex(1);
-        controls.Gameplay.Weapon3.performed += ctx => TryEquipByIndex(2);
-        controls.Gameplay.Weapon4.performed += ctx => TryEquipByIndex(3);
+        InputAction[] weaponSlotActions =
+        {
+            controls.Gameplay.Weapon1,
+            controls.Gameplay.Weapon2,
+            controls.Gameplay.Weapon3,
+            controls.Gameplay.Weapon4,
+            controls.Gameplay.Weapon5,
+            controls.Gameplay.Weapon6
+        };
+
+        for (int i = 0; i < weaponSlotActions.Length; i++)
+        {
+            int slotIndex = i; // local copy - capturing "i" directly would make every closure
+                               // below share the same variable, so by the time any of them
+                               // actually fired they'd all read the loop's final value.
+            weaponSlotActions[i].performed += ctx => TryEquipByIndex(slotIndex);
+        }
 
         controls.Gameplay.Reload.performed += ctx => TryReload();
     }
@@ -109,6 +135,19 @@ public class WeaponHolder : MonoBehaviour
         if (reloadCoroutine != null) StopCoroutine(reloadCoroutine);
         isReloading = false;
 
+        // A weapon swap always cancels any in-progress lock-on, regardless of whether the OLD
+        // or NEW weapon is a homing weapon. Without this, switching weapons mid-lock leaves
+        // lockOnUI active forever, since the clearing logic only ever ran from inside the
+        // homing branch of Update() for the weapon that started the lock.
+        lockedTarget = null;
+        wasHoldingFire = false;
+        if (lockOnUI != null) lockOnUI.gameObject.SetActive(false);
+
+        // Same reasoning applies to an in-progress laser charge: cancel its VFX/SFX and reset
+        // state so switching away from a charging weapon doesn't leave it running forever.
+        EndChargeEffects();
+        isCharging = false;
+
         if (currentGunInstance != null) Destroy(currentGunInstance);
 
         currentWeapon = newWeapon;
@@ -137,21 +176,215 @@ public class WeaponHolder : MonoBehaviour
 
     void Update()
     {
-        // 1. Check if the player is trying to shoot this exact frame
-        bool wantsToShoot = string.IsNullOrEmpty(currentWeapon.weaponID) ? false :
-                            (currentWeapon.isAutomatic ? isHoldingFire : firePressedThisFrame);
-
-        // 2. IMMEDIATELY consume/reset the single-fire flag so it never buffers!
-        firePressedThisFrame = false;
-
-        // 3. Now, if we are reloading, or holding no weapon, just stop here.
         if (isReloading || string.IsNullOrEmpty(currentWeapon.weaponID)) return;
 
-        // 4. If we made it this far, fire the gun!
+        // --- CHARGE LASER LOGIC (Hold to Charge, Release to Fire) ---
+        if (currentWeapon.isChargeLaser)
+        {
+            HandleChargeLaser();
+            return;
+        }
+
+        // --- HOMING WEAPON LOGIC (Hold to Lock, Release to Fire) ---
+        if (currentWeapon.isHoming)
+        {
+            if (isHoldingFire)
+            {
+                FindLockOnTarget();
+            }
+            else if (wasHoldingFire) // The exact frame the player releases the trigger
+            {
+                if (Time.time >= nextFireTime && lockedTarget != null)
+                {
+                    Shoot();
+                    nextFireTime = Time.time + currentWeapon.fireRate;
+                }
+
+                // Clear the UI and the lock
+                lockedTarget = null;
+                if (lockOnUI != null) lockOnUI.gameObject.SetActive(false);
+            }
+
+            wasHoldingFire = isHoldingFire;
+            return; // Skip normal automatic firing logic!
+        }
+
+        // --- NORMAL WEAPON LOGIC ---
+        bool wantsToShoot = currentWeapon.isAutomatic ? isHoldingFire : firePressedThisFrame;
+        firePressedThisFrame = false;
+
         if (wantsToShoot && Time.time >= nextFireTime)
         {
             Shoot();
             nextFireTime = Time.time + currentWeapon.fireRate;
+        }
+    }
+
+    // --- Charge laser state machine: mirrors the homing "hold to lock, release to fire" pattern ---
+    private void HandleChargeLaser()
+    {
+        if (isHoldingFire && !isCharging)
+        {
+            // Just started holding the trigger - begin the charge
+            isCharging = true;
+            chargeStartTime = Time.time;
+            BeginChargeEffects();
+        }
+        else if (!isHoldingFire && isCharging)
+        {
+            // Released - fire based on however long we actually held it
+            float heldDuration = Time.time - chargeStartTime;
+            float chargeFraction = currentWeapon.chargeTime > 0f
+                ? Mathf.Clamp01(heldDuration / currentWeapon.chargeTime)
+                : 1f;
+
+            EndChargeEffects();
+            isCharging = false;
+
+            // Releasing too early just cancels the shot with no visual/damage - true "fizzle."
+            // Cooldown (nextFireTime) is still respected even on a fully-charged release.
+            if (chargeFraction >= currentWeapon.minChargeFraction && Time.time >= nextFireTime)
+            {
+                FireChargedLaser(chargeFraction);
+                nextFireTime = Time.time + currentWeapon.fireRate;
+            }
+        }
+    }
+
+    private void BeginChargeEffects()
+    {
+        if (currentWeapon.chargeVFX != null && currentFirePoint != null)
+        {
+            activeChargeVFX = Instantiate(currentWeapon.chargeVFX, currentFirePoint.position, currentFirePoint.rotation, currentFirePoint);
+        }
+
+        if (currentWeapon.chargeSFX != null)
+        {
+            // Uses the main clip/loop channel so it doesn't collide with PlayOneShot fire SFX,
+            // which plays on its own internal channel independently of audioSource.clip.
+            audioSource.loop = true;
+            audioSource.clip = currentWeapon.chargeSFX;
+            audioSource.Play();
+        }
+    }
+
+    private void EndChargeEffects()
+    {
+        if (activeChargeVFX != null)
+        {
+            Destroy(activeChargeVFX);
+            activeChargeVFX = null;
+        }
+
+        if (audioSource.loop)
+        {
+            audioSource.Stop();
+            audioSource.loop = false;
+            audioSource.clip = null;
+        }
+    }
+
+    private void FireChargedLaser(float chargeFraction)
+    {
+        if (currentAmmoTracker[currentWeapon.weaponID] <= 0)
+        {
+            TryReload();
+            return;
+        }
+
+        currentAmmoTracker[currentWeapon.weaponID]--;
+        UpdateAmmoUI();
+
+        if (currentAmmoTracker[currentWeapon.weaponID] <= 0)
+        {
+            TryReload();
+        }
+
+        if (currentWeapon.useScreenShake && currentWeapon.shakeMagnitude > 0)
+        {
+            impulseSource.GenerateImpulseWithForce(currentWeapon.shakeMagnitude);
+        }
+
+        if (currentWeapon.fireSFX != null)
+        {
+            audioSource.pitch = 1f;
+            audioSource.PlayOneShot(currentWeapon.fireSFX);
+        }
+
+        if (currentWeapon.muzzleFlashVFX != null)
+        {
+            Instantiate(currentWeapon.muzzleFlashVFX, currentFirePoint.position, currentFirePoint.rotation, currentFirePoint);
+        }
+
+        // --- Scale damage by how fully charged the shot was. WeaponStatRow is a struct, so
+        // this copy is local and never touches the real currentWeapon or its ammo/state.
+        WeaponStatRow chargedStats = currentWeapon;
+        chargedStats.damage = Mathf.Lerp(currentWeapon.damage * currentWeapon.minDamageMultiplier, currentWeapon.damage, chargeFraction);
+
+        int projectiles = currentWeapon.projectilesPerShot;
+
+        if (projectiles <= 1)
+        {
+            SpawnBullet(currentFirePoint.rotation, chargedStats);
+            return;
+        }
+
+        float angleStep = currentWeapon.spreadAngle / (projectiles - 1);
+        float startingAngle = -(currentWeapon.spreadAngle / 2f);
+
+        for (int i = 0; i < projectiles; i++)
+        {
+            float currentAngle = startingAngle + (angleStep * i);
+            Quaternion rotationOffset = Quaternion.Euler(0, 0, currentAngle);
+            Quaternion finalRotation = currentFirePoint.rotation * rotationOffset;
+
+            SpawnBullet(finalRotation, chargedStats);
+        }
+    }
+
+    private void FindLockOnTarget()
+    {
+        // 1. Get the mouse position in world space
+        Vector2 mousePos = controls.Gameplay.Aim.ReadValue<Vector2>();
+        Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(mousePos);
+
+        // 2. Scan a 5-unit radius around the MOUSE cursor
+        Collider2D[] objectsInRange = Physics2D.OverlapCircleAll(mouseWorldPos, 5f);
+        float closestDist = Mathf.Infinity;
+        Transform bestTarget = null;
+
+        foreach (var obj in objectsInRange)
+        {
+            if (obj.CompareTag("Enemy"))
+            {
+                Health health = obj.GetComponent<Health>();
+                // Only lock onto living things
+                if (health != null && health.GetCurrentHealth() > 0)
+                {
+                    float dist = Vector2.Distance(mouseWorldPos, obj.transform.position);
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        bestTarget = obj.transform;
+                    }
+                }
+            }
+        }
+
+        lockedTarget = bestTarget;
+
+        // 3. Snap the UI Reticle over the enemy
+        if (lockOnUI != null)
+        {
+            if (lockedTarget != null)
+            {
+                lockOnUI.gameObject.SetActive(true);
+                lockOnUI.position = mainCam.WorldToScreenPoint(lockedTarget.position);
+            }
+            else
+            {
+                lockOnUI.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -191,7 +424,7 @@ public class WeaponHolder : MonoBehaviour
 
         if (projectiles <= 1)
         {
-            SpawnBullet(currentFirePoint.rotation);
+            SpawnBullet(currentFirePoint.rotation, currentWeapon);
             return;
         }
 
@@ -204,7 +437,7 @@ public class WeaponHolder : MonoBehaviour
             Quaternion rotationOffset = Quaternion.Euler(0, 0, currentAngle);
             Quaternion finalRotation = currentFirePoint.rotation * rotationOffset;
 
-            SpawnBullet(finalRotation);
+            SpawnBullet(finalRotation, currentWeapon);
         }
     }
 
@@ -267,18 +500,22 @@ public class WeaponHolder : MonoBehaviour
         }
     }
 
-    private void SpawnBullet(Quaternion rotation)
+    private void SpawnBullet(Quaternion rotation, WeaponStatRow statsToUse)
     {
-        ObjectPool<GameObject> pool = GetBulletPool(currentWeapon.bulletPrefab);
+        ObjectPool<GameObject> pool = GetBulletPool(statsToUse.bulletPrefab);
         GameObject bulletGo = pool.Get();
 
         bulletGo.transform.position = currentFirePoint.position;
         bulletGo.transform.rotation = rotation;
 
+        // --- Force it to the PlayerBullet layer! ---
+        bulletGo.layer = LayerMask.NameToLayer("PlayerBullet");
+
         Bullet bulletScript = bulletGo.GetComponent<Bullet>();
         if (bulletScript != null)
         {
-            bulletScript.InitializeBullet(currentWeapon, pool, impulseSource);
+            // --- Pass the lockedTarget ---
+            bulletScript.InitializeBullet(statsToUse, pool, impulseSource, gameObject.tag, lockedTarget);
         }
     }
 
