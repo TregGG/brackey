@@ -6,6 +6,9 @@ public class BossArenaTrigger : MonoBehaviour
     [Header("Boss Reference")]
     public BossPhaseManager bossManager;
 
+    [Header("UI Reference")]
+    public BossHealthBar bossUI;
+
     [Header("Optional Arena Setup")]
     public GameObject arenaDoors; // Drag your locked doors here to trap the player!
     public AudioClip bossMusic;
@@ -23,6 +26,12 @@ public class BossArenaTrigger : MonoBehaviour
     {
         if (!hasTriggered && collision.CompareTag("Player"))
         {
+            // Wake up the UI!
+            if (bossUI != null && bossManager != null)
+            {
+                bossUI.InitializeHealthBar(bossManager.GetComponent<Health>());
+            }
+
             hasTriggered = true;
 
             // 1. Wake up the boss!
