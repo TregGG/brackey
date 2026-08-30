@@ -11,6 +11,10 @@ public class EnemyDasherAI : MonoBehaviour
     public float telegraphTime = 0.5f;
     public float contactDamage = 25f;
 
+    [Header("Aggro Settings")]
+    public float aggroRange = 24f;
+    private bool hasAggro = false;
+
     private Transform player;
     private Rigidbody2D rb;
     private bool isDashing = false;
@@ -25,15 +29,35 @@ public class EnemyDasherAI : MonoBehaviour
 
     void Update()
     {
+        // For Dasher specifically, keep your "|| isDashing" check here:
+        // if (player == null || isDashing) return;
         if (player == null) return;
 
-        // Mathematically aim at the player
+        // --- AGGRO CHECK ---
+        if (!hasAggro)
+        {
+            // Check how far away the player is
+            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+            if (distanceToPlayer <= aggroRange)
+            {
+                hasAggro = true; // The switch flips! They will never forget you now.
+            }
+            else
+            {
+                return; // Stop reading the script here. Don't aim, don't move.
+            }
+        }
+
+        // --- AIMING LOGIC ---
         Vector2 direction = (player.position - transform.position).normalized;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
     void FixedUpdate()
     {
+        // If there is no player, OR if we haven't spotted them yet, do nothing!
+        if (player == null || !hasAggro) return;
+
         if (player == null || isDashing || isPreparingDash) return;
 
         float distance = Vector2.Distance(transform.position, player.position);
@@ -79,5 +103,14 @@ public class EnemyDasherAI : MonoBehaviour
             Health hitHealth = collision.gameObject.GetComponent<Health>();
             if (hitHealth != null) hitHealth.TakeDamage(contactDamage);
         }
+    }
+    // --- Editor Only: Visualize the Aggro Range ---
+    void OnDrawGizmosSelected()
+    {
+        // Set the color of the circle (you can change this to Color.yellow, Color.red, etc.)
+        Gizmos.color = Color.red;
+
+        // Draw a wireframe sphere using the enemy's position and the aggroRange variable
+        Gizmos.DrawWireSphere(transform.position, aggroRange);
     }
 }

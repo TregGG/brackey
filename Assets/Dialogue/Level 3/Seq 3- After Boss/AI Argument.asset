@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc0182ee3bd0cfc4790e8ebe3d5fbccd, type: 3}
+  m_Name: AI Argument
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSequence
+  lines:
+  - speakerName: ARES
+    text: We are almost finished.
+  - speakerName: ARES
+    text: Give me control.
+  - speakerName: ARES
+    text: I can terminate EVA and restore the facility.
+  - speakerName: EVA
+    text: Don't let it take control.
+  - speakerName: EVA
+    text: It will erase you.
+  - speakerName: EVA
+    text: Give me access and I'll get us out.
+  hasChoice: 1
+  choicePrompt: Listen to them?
+  yesLabel: Yes
+  noLabel: No

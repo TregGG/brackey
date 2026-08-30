@@ -3,9 +3,14 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D), typeof(EnemyWeaponController))]
 public class EnemyShooterAI : MonoBehaviour
 {
+
     public float moveSpeed = 3f;
     public float stoppingDistance = 5f;
     public float retreatDistance = 3f;
+
+    [Header("Aggro Settings")]
+    public float aggroRange = 24f;
+    private bool hasAggro = false;
 
     private Transform player;
     private Rigidbody2D rb;
@@ -22,6 +27,20 @@ public class EnemyShooterAI : MonoBehaviour
     void Update()
     {
         if (player == null) return;
+
+        // --- AGGRO CHECK ---
+        if (!hasAggro)
+        {
+            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+            if (distanceToPlayer <= aggroRange)
+            {
+                hasAggro = true;
+            }
+            else
+            {
+                return; // Stop the script. Don't move, aim, or shoot!
+            }
+        }
 
         // Aim at player
         Vector2 direction = (player.position - transform.position).normalized;
@@ -41,5 +60,14 @@ public class EnemyShooterAI : MonoBehaviour
 
         // Fire weapon using your existing framework
         weaponController.TryFire();
+    }
+    // --- Editor Only: Visualize the Aggro Range ---
+    void OnDrawGizmosSelected()
+    {
+        // Set the color of the circle (you can change this to Color.yellow, Color.red, etc.)
+        Gizmos.color = Color.red;
+
+        // Draw a wireframe sphere using the enemy's position and the aggroRange variable
+        Gizmos.DrawWireSphere(transform.position, aggroRange);
     }
 }
