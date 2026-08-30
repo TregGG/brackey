@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Mathematics;
 
 public class PlayerHealthUI : MonoBehaviour
 {
@@ -37,7 +38,7 @@ public class PlayerHealthUI : MonoBehaviour
         // 1. Update the visual bar
         if (healthSlider != null)
         {
-            healthSlider.value = playerHealth.GetHealthPercentage();
+            healthSlider.value = 1-playerHealth.GetHealthPercentage();
         }
 
         // 2. Update the exact numbers (Mathf.CeilToInt rounds up so you don't see decimals)

@@ -38,8 +38,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5296, y: 0.5296, z: 0.5296}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.01, y: 1.01, z: 1.01}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1161691639279016067}
   m_Father: {fileID: 0}
@@ -196,7 +196,7 @@ MonoBehaviour:
   dashCooldown: 1
   dashSFX: {fileID: 0}
   dashVFX: {fileID: 0}
-  dashTrail: {fileID: 0}
+  dashTrail: {fileID: 449460538261220331}
 --- !u!114 &252021805592230611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -475,7 +475,7 @@ TrailRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3561520344644636632}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -525,8 +525,8 @@ TrailRenderer:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0.012805939
-        value: 0.6000004
+        time: 0
+        value: 1
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -575,7 +575,7 @@ TrailRenderer:
     generateLightingData: 0
   m_MinVertexDistance: 0.1
   m_Autodestruct: 0
-  m_Emitting: 1
+  m_Emitting: 0
   m_ApplyActiveColorSpace: 1
 --- !u!1 &8373785058829220306
 GameObject:

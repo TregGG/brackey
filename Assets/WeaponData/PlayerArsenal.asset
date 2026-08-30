@@ -84,7 +84,7 @@ MonoBehaviour:
     minDamageMultiplier: 0
     chargeSFX: {fileID: 0}
     chargeVFX: {fileID: 0}
-    hasInfiniteAmmo: 0
+    hasInfiniteAmmo: 1
     magazineSize: 7
     reloadTime: 3
     reloadSFX: {fileID: 0}
@@ -123,7 +123,7 @@ MonoBehaviour:
     minDamageMultiplier: 0
     chargeSFX: {fileID: 0}
     chargeVFX: {fileID: 0}
-    hasInfiniteAmmo: 0
+    hasInfiniteAmmo: 1
     magazineSize: 1
     reloadTime: 4
     reloadSFX: {fileID: 0}
@@ -162,7 +162,7 @@ MonoBehaviour:
     minDamageMultiplier: 0
     chargeSFX: {fileID: 0}
     chargeVFX: {fileID: 0}
-    hasInfiniteAmmo: 0
+    hasInfiniteAmmo: 1
     magazineSize: 50
     reloadTime: 5
     reloadSFX: {fileID: 0}
@@ -171,10 +171,10 @@ MonoBehaviour:
     aiBurstSpacing: 0
   - weaponID: HomingLauncher
     weaponPrefab: {fileID: 5335074977614675557, guid: 1457f924258e41a48a21bb933015b638, type: 3}
-    bulletPrefab: {fileID: 5565608914010123635, guid: 867f58b525bad77499f326a3f56dc3c8, type: 3}
-    damage: 140
-    fireRate: 1
-    bulletSpeed: 10
+    bulletPrefab: {fileID: 5565608914010123635, guid: 095da8d7862b9d34586624ea2d30e1d6, type: 3}
+    damage: 100
+    fireRate: 0.8
+    bulletSpeed: 31.27
     bulletLifeTime: 10
     isAutomatic: 0
     impactForce: 25
@@ -201,8 +201,8 @@ MonoBehaviour:
     minDamageMultiplier: 0
     chargeSFX: {fileID: 0}
     chargeVFX: {fileID: 0}
-    hasInfiniteAmmo: 0
-    magazineSize: 5
+    hasInfiniteAmmo: 1
+    magazineSize: 2
     reloadTime: 2
     reloadSFX: {fileID: 0}
     emptyClickSFX: {fileID: 0}
@@ -240,7 +240,7 @@ MonoBehaviour:
     minDamageMultiplier: 0.4
     chargeSFX: {fileID: 0}
     chargeVFX: {fileID: 0}
-    hasInfiniteAmmo: 0
+    hasInfiniteAmmo: 1
     magazineSize: 10
     reloadTime: 1
     reloadSFX: {fileID: 0}
