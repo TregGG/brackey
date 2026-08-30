@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc0182ee3bd0cfc4790e8ebe3d5fbccd, type: 3}
   m_Name: Listen to them
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSequence
-  lines: []
+  lines:
+  - speakerName: ???
+    text: ......
   hasChoice: 1
   choicePrompt: Listen to-
   yesLabel: EVA
