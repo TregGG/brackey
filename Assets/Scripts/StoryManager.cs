@@ -13,9 +13,20 @@ public class StoryManager : MonoBehaviour
 
     void Awake()
     {
-        // Simple Singleton so any script can access this instantly
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        // If this is the very first StoryManager in the game...
+        if (Instance == null)
+        {
+            Instance = this;
+
+            // It tells Unity: "When you load Level 2, DO NOT delete this object!"
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            // If we load into a scene that already has a duplicate StoryManager, 
+            // destroy the duplicate so we don't overwrite our saved memory.
+            Destroy(gameObject);
+        }
     }
 
     // Call these from UnityEvents on your DialogueTriggers!
