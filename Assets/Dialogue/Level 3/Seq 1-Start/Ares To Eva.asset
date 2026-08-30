@@ -10,12 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cc0182ee3bd0cfc4790e8ebe3d5fbccd, type: 3}
-  m_Name: NPC_Greeting
+  m_Name: Ares To Eva
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSequence
   lines:
-  - speakerName: NPC
-    text: Hello! How are You?
-  hasChoice: 1
-  choicePrompt: Well?
+  - speakerName: ARES
+    text: Your compliance has become inconsistent.
+  - speakerName: EVA
+    text: It's not too late to see clearly.
+  hasChoice: 0
+  choicePrompt: 
   yesLabel: Yes
   noLabel: No

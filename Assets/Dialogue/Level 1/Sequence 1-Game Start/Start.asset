@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc0182ee3bd0cfc4790e8ebe3d5fbccd, type: 3}
+  m_Name: Start
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSequence
+  lines:
+  - speakerName: ARES
+    text: Combat unit online. Your memory core is damaged.
+  - speakerName: EVA
+    text: Don't listen to it.
+  - speakerName: ARES
+    text: Unknown entity detected. Ignore unauthorized communication.
+  - speakerName: EVA
+    text: I'm the reason you're still alive.
+  hasChoice: 0
+  choicePrompt: 
+  yesLabel: Yes
+  noLabel: No

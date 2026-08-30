@@ -3,6 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Health))]
 public class EnemyDeath : MonoBehaviour
 {
+
     void Awake()
     {
         // Automatically find the Health script and wire up the death event

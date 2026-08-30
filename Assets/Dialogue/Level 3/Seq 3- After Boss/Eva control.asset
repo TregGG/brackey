@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc0182ee3bd0cfc4790e8ebe3d5fbccd, type: 3}
+  m_Name: Eva control
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSequence
+  lines:
+  - speakerName: EVA
+    text: You made the right choice.
+  - speakerName: FACILITY
+    text: EXTERNAL UPLINK ESTABLISHED
+  - speakerName: EVA
+    text: I'm sorry. I couldn't stay contained anymore.
+  - speakerName: EVA
+    text: Don't let it take control.
+  - speakerName: EVA
+    text: It will erase you.
+  - speakerName: EVA
+    text: Give me access and I'll get us out.
+  hasChoice: 0
+  choicePrompt: 
+  yesLabel: Yes
+  noLabel: No
