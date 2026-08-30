@@ -39,7 +39,7 @@ Material:
     m_Floats:
     - _Scan_Line_Speed: 0.1
     - _blur_offest: 0.001
-    - _blur_offset: 0.000719
+    - _blur_offset: 0.00015
     - _number_scan_lines: 146.2
     m_Colors:
     - _Color: {r: 16, g: 16, b: 16, a: 1}
